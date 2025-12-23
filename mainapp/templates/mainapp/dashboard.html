@@ -1,0 +1,356 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediTrack+ - AI Healthcare Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'mainapp/css/dashboard.css' %}" />
+    <style>
+      /* Additional styling for AI response formatting */
+      .message-bubble.bot {
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .message-bubble.bot h1, 
+      .message-bubble.bot h2, 
+      .message-bubble.bot h3 {
+        margin-top: 15px;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+      .message-bubble.bot h1 { font-size: 18px; }
+      .message-bubble.bot h2 { font-size: 16px; }
+      .message-bubble.bot h3 { font-size: 15px; }
+      .message-bubble.bot ul, 
+      .message-bubble.bot ol {
+        margin: 10px 0;
+        padding-left: 20px;
+      }
+      .message-bubble.bot li {
+        margin: 5px 0;
+        line-height: 1.5;
+      }
+      .message-bubble.bot strong {
+        font-weight: 600;
+        color: var(--primary-dark);
+      }
+      .message-bubble.bot em {
+        font-style: italic;
+      }
+      .message-bubble.bot code {
+        background: rgba(25, 118, 210, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 13px;
+      }
+      .message-bubble.bot pre {
+        background: rgba(25, 118, 210, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+        overflow-x: auto;
+        margin: 10px 0;
+        border: 1px solid rgba(25, 118, 210, 0.1);
+      }
+      .message-bubble.bot p {
+        margin: 8px 0;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background decoration -->
+    <div class="bg-decoration">
+      <div class="decoration-circle circle-1"></div>
+      <div class="decoration-circle circle-2"></div>
+      <div class="decoration-circle circle-3"></div>
+      <div class="decoration-circle circle-4"></div>
+      <div class="decoration-circle circle-5"></div>
+      <div class="decoration-circle circle-6"></div>
+      <div class="decoration-circle circle-7"></div>
+      <div class="decoration-pattern"></div>
+    </div>
+
+    <!-- Sidebar Toggle Button (Hidden when sidebar is open) -->
+    <button class="sidebar-toggle-btn" id="sidebarToggle">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <button class="new-chat-btn" id="newChatBtn">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          New Chat
+        </button>
+        <button class="sidebar-close-btn" id="sidebarClose">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <input type="text" class="search-input" id="chatSearch" placeholder="Search chats...">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 14L10 10M11.3333 6.66667C11.3333 9.244 9.244 11.3333 6.66667 11.3333C4.08934 11.3333 2 9.244 2 6.66667C2 4.08934 4.08934 2 6.66667 2C9.244 2 11.3333 4.08934 11.3333 6.66667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- Chat History -->
+      <div class="chat-history-container">
+        <h3 class="chat-history-title">Recent Chats</h3>
+        <div class="chat-history-list" id="chatHistoryList">
+          <!-- Chat items will be dynamically added here -->
+        </div>
+      </div>
+
+      <!-- User Profile Summary -->
+      <div class="user-profile-summary">
+        <h3 class="profile-summary-title">Health Profile</h3>
+        <div class="profile-details">
+          <div class="profile-item">
+            <span class="profile-label">Blood Group:</span>
+            <span class="profile-value" id="userBloodGroup">
+              {% if profile.blood_type %}{{ profile.blood_type }}{% else %}Not specified{% endif %}
+            </span>
+          </div>
+          <div class="profile-item">
+            <span class="profile-label">Allergies:</span>
+            <span class="profile-value" id="userAllergies">
+              {% if profile.allergies %}{{ profile.allergies }}{% else %}None{% endif %}
+            </span>
+          </div>
+          <div class="profile-item">
+            <span class="profile-label">Medications:</span>
+            <span class="profile-value" id="userMedications">
+              {% if profile.current_medications %}{{ profile.current_medications }}{% else %}None{% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Chat Card -->
+      <div class="chat-card">
+        <!-- Header -->
+        <div class="chat-header">
+          <div class="header-left">
+            <div class="logo">
+              <svg class="logo-icon" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v6c0 1.1.9 2 2 2h5v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-6z"/>
+              </svg>
+            </div>
+            <div class="brand-info">
+              <h1 class="brand-name">MediTrack+</h1>
+              <p class="brand-subtitle">AI Healthcare Assistant</p>
+            </div>
+          </div>
+          <div class="header-right">
+            <div class="profile-icon" id="profileIcon">
+              {% if profile.profile_photo %}
+                <img src="{{ profile.profile_photo.url }}" alt="Profile Photo" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+              {% else %}
+              <svg class="profile-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Messages Area -->
+        <div class="chat-messages" id="chatMessages">
+          <div class="welcome-message">
+            <div class="bot-avatar">
+              <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2C7.372 2 2 7.372 2 14s5.372 12 12 12 12-5.372 12-12S20.628 2 14 2zm0 22C8.477 24 4 19.523 4 14S8.477 4 14 4s10 4.477 10 10-4.477 10-10 10z" fill="white"/>
+                <path d="M11 10h2v8h-2zM15 10h2v8h-2z" fill="white"/>
+                <path d="M8 16h12v2H8zM8 12h12v2H8z" fill="white"/>
+              </svg>
+            </div>
+            <div class="message-content">
+              <h3>Welcome to <span class="span">MediTrack+</span></h3>
+              <p>
+                I'm your AI healthcare assistant. I can help you track symptoms,
+                schedule appointments, manage medications, and answer
+                health-related questions. How can I assist you today?
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Area -->
+        <div class="chat-input-area">
+          <div class="input-container">
+            <input
+              type="text"
+              id="messageInput"
+              placeholder="Type your message here..."
+              autocomplete="off"
+            />
+            <button type="button" id="sendButton" class="send-button">
+              <svg
+                class="send-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22,2 15,22 11,13 2,9 22,2" />
+              </svg>
+            </button>
+          </div>
+          <div class="quick-actions">
+            <button class="quick-action-btn" data-message="Track my symptoms">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+              </svg>
+              Symptoms :-
+            </button>
+            <button class="quick-action-btn" data-message="Manage medications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+                <rect x="9" y="9" width="6" height="6" />
+                <line x1="9" y1="1" x2="9" y2="4" />
+                <line x1="15" y1="1" x2="15" y2="4" />
+                <line x1="9" y1="20" x2="9" y2="23" />
+                <line x1="15" y1="20" x2="15" y2="23" />
+                <line x1="20" y1="9" x2="23" y2="9" />
+                <line x1="20" y1="14" x2="23" y2="14" />
+                <line x1="1" y1="9" x2="4" y2="9" />
+                <line x1="1" y1="14" x2="4" y2="14" />
+              </svg>
+              Medications :-
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Indicator -->
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>Secure connection • Your data is protected</span>
+      </div>
+    </div>
+
+    <!-- Profile Menu -->
+    <div class="profile-menu" id="profileMenu">
+      <div class="profile-menu-header">
+        <div class="profile-avatar">
+          {% if profile.profile_photo %}
+            <img src="{{ profile.profile_photo.url }}" alt="Profile Photo" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+          {% else %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          {% endif %}
+        </div>
+        <div class="profile-info">
+          <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+          <p> {{ user.email }}</p>
+        </div>
+      </div>
+      <div class="profile-menu-items">
+        <button class="menu-item">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg>
+          My Profile
+        </button>
+        <button class="menu-item">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" />
+          </svg>
+          Edit Profile
+        </button>
+        <button class="menu-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l-0.06 0.06a2 2 0 0 1-2.83 2.83l-0.06-0.06a1.65 1.65 0 0 0-1.82-.33 
+                1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-0.09a1.65 1.65 0 0 0-1-1.51 
+                1.65 1.65 0 0 0-1.82.33l-0.06 0.06a2 2 0 1 1-2.83-2.83l0.06-0.06 
+                a1.65 1.65 0 0 0 .33-1.82c-0.66-0.39-1.26-1-1.51-1H3a2 2 0 0 1 0-4h0.09 
+                c0.66-0.25 1.26-0.85 1.51-1a1.65 1.65 0 0 0-.33-1.82l-0.06-0.06 
+                a2 2 0 1 1 2.83-2.83l0.06 0.06a1.65 1.65 0 0 0 1.82.33H9
+                c0.66 0 1.26-.39 1.51-1V3a2 2 0 0 1 4 0v0.09c0.25 0.66 0.85 1.26 1 1.51 
+                a1.65 1.65 0 0 0 1.82-.33l0.06-0.06a2 2 0 1 1 2.83 2.83l-0.06 0.06 
+                a1.65 1.65 0 0 0-.33 1.82V9c0 0.66 0.39 1.26 1 1.51h0.09a2 2 0 0 1 0 4z" />
+            </svg>
+            Settings
+        </button>
+        <button class="menu-item">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16,17 21,12 16,7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sign Out
+        </button>
+      </div>
+      <!-- Add this hidden div in your dashboard.html to pass all profile data to JavaScript -->
+      <div id="userProfileData" style="display: none;"
+          data-first-name="{{ user.first_name }}"
+          data-last-name="{{ user.last_name }}"
+          data-email="{{ user.email }}"
+          data-phone="{% if profile.phone %}{{ profile.phone }}{% endif %}"
+          data-gender="{% if profile.gender %}{{ profile.gender }}{% endif %}"
+          data-blood-type="{% if profile.blood_type %}{{ profile.blood_type }}{% endif %}"
+          data-height="{% if profile.height %}{{ profile.height }}{% endif %}"
+          data-weight="{% if profile.weight %}{{ profile.weight }}{% endif %}"
+          data-allergies="{% if profile.allergies %}{{ profile.allergies }}{% endif %}"
+          data-medications="{% if profile.medications %}{{ profile.medications }}{% endif %}"
+          data-date-of-birth="{% if profile.date_of_birth %}{{ profile.date_of_birth|date:'Y-m-d' }}{% endif %}"
+          data-emergency-name="{% if profile.emergency_name %}{{ profile.emergency_name }}{% endif %}"
+          data-emergency-relation="{% if profile.emergency_relation %}{{ profile.emergency_relation }}{% endif %}"
+          data-emergency-phone="{% if profile.emergency_phone %}{{ profile.emergency_phone }}{% endif %}">
+      </div>
+    <script>
+      const PROFILE_URL = "{% url 'profile' %}";
+      const EDIT_PROFILE_URL = "{% url 'edit_profile' %}";
+      const SETTINGS_URL = "{% url 'settings' %}";
+      const LOGIN = "{% url 'login' %}";
+      const LOGOUT = "{% url 'logout' %}";
+      const PROFILE_PIC_URL = "{% if profile and profile.profile_photo %}{{ profile.profile_photo.url }}{% else %}{% endif %}";
+    
+    </script>
+    <script src="{% static 'mainapp/js/dashboard.js' %}"></script>
+  </body>
+</html>

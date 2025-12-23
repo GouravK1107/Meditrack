@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrack+ | Verify OTP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'account/css/login.css' %}">
+    <style>
+        .otp-input-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius);
+            background: var(--white);
+            transition: var(--transition);
+        }
+        
+        .otp-input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+        }
+        
+        .timer {
+            font-size: 14px;
+            color: var(--gray-600);
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .timer.expired {
+            color: var(--error);
+        }
+        
+        .resend-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .resend-link:hover {
+            text-decoration: underline;
+        }
+        
+        .resend-link.disabled {
+            color: var(--gray-400);
+            cursor: not-allowed;
+        }
+        
+        .email-display {
+            background: var(--primary-light);
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            margin: 15px 0;
+            font-size: 14px;
+            color: var(--primary-dark);
+            text-align: center;
+            border: 1px solid rgba(25, 118, 210, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Background decoration -->
+        <div class="bg-decoration">
+            <div class="decoration-circle circle-1"></div>
+            <div class="decoration-circle circle-2"></div>
+            <div class="decoration-circle circle-3"></div>
+            <div class="decoration-circle circle-4"></div>
+            <div class="decoration-circle circle-5"></div>
+            <div class="decoration-circle circle-6"></div>
+            <div class="decoration-circle circle-7"></div>
+            <div class="decoration-pattern"></div>
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v6c0 1.1.9 2 2 2h5v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-6z"/>
+                </svg>
+            </div>
+            <h1 class="brand-name">MediTrack+</h1>
+            <p class="brand-subtitle">Verify your email address</p>
+        </div>
+
+        <!-- OTP Card -->
+        <div class="auth-card">
+            <div class="form-container">
+                <form id="verify-otp-form" method="post">
+                    {% csrf_token %}
+                    <h2 class="form-title">Enter OTP</h2>
+                    <p class="form-subtitle">We've sent a 6-digit code to your email</p>
+                    
+                    <div class="email-display" id="email-display">
+                        {{ email|default:"your.email@example.com" }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Enter 6-digit OTP</label>
+                        <div class="otp-input-container">
+                            {% for i in "123456" %}
+                            <input 
+                                type="text" 
+                                maxlength="1" 
+                                class="otp-input" 
+                                data-index="{{ forloop.counter0 }}"
+                                autocomplete="off"
+                            >
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" id="otp-value" name="otp">
+                    </div>
+                    
+                    <div class="timer" id="timer">
+                        OTP expires in: <span id="time-left">10:00</span>
+                    </div>
+                    
+                    <div class="checkbox-group" style="justify-content: center;">
+                        <a href="#" id="resend-link" class="resend-link">
+                            Didn't receive code? Resend OTP
+                        </a>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="verify-btn">
+                        Verify & Continue
+                    </button>
+                    
+                    <div class="divider">
+                        <span>Or</span>
+                    </div>
+                    
+                    <button type="button" class="btn-signup" id="back-to-login">
+                        Back to Login
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                Protected by enterprise-grade security. Your health data is encrypted and 
+                <span class="footer-highlight">HIPAA compliant</span>.
+            </p>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+    
+    <script src="{% static 'account/js/verify_otp.js' %}"></script>
+</body>
+</html>

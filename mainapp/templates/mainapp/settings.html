@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrack+ - Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'mainapp/css/settings.css' %}">
+</head>
+<body>
+    <!-- Background decoration -->
+    <div class="bg-decoration">
+        <div class="decoration-circle circle-1"></div>
+        <div class="decoration-circle circle-2"></div>
+        <div class="decoration-circle circle-3"></div>
+        <div class="decoration-circle circle-4"></div>
+        <div class="decoration-circle circle-5"></div>
+        <div class="decoration-pattern"></div>
+    </div>
+
+    <!-- Header/Navigation -->
+    <div class="header">
+        <div class="logo-container">
+            <div class="logo">
+                <svg class="logo-icon" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M11 2a2 2 0 0 0-2 2v5H4a2 2 0 0 0-2 2v6c0 1.1.9 2 2 2h5v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-5h5a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-5V4a2 2 0 0 0-2-2h-6z" />
+                </svg>
+            </div>
+            <div class="brand-info">
+                <h1 class="brand-name">MediTrack+</h1>
+                <p class="brand-subtitle">AI Healthcare Assistant</p>
+            </div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="{% url 'dashboard' %}" class="nav-link">Chat Assistant</a>
+            <a href="{% url 'settings' %}" class="nav-link active">Settings</a>
+        </div>
+    </div>
+
+    <!-- Settings Container -->
+    <div class="settings-container">
+        <!-- Settings Sidebar -->
+        <div class="settings-sidebar">
+            <h2 class="settings-title">Settings</h2>
+            <div class="settings-nav">
+                <button class="settings-nav-item active" data-section="account">
+                    <svg class="settings-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    Account Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="settings-content">
+            <!-- Account Settings Section (Active by Default) -->
+            <div class="content-header">
+                <h2 class="content-title">Account Settings</h2>
+                <p class="content-description">Manage your account information and preferences.</p>
+            </div>
+
+            <div id="account-section" class="settings-section active">
+                <div class="section-title">
+                    <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="5" />
+                        <path d="M20 21a8 8 0 1 0-16 0" />
+                    </svg>
+                    Personal Information
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3 class="setting-title">Email Address</h3>
+                        <p class="setting-description">Your current email address: <strong>{{ user.email }}</strong></p>
+                    </div>
+                    <button class="btn btn-secondary" id="changeEmailBtn">Change Email</button>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3 class="setting-title">Change Password</h3>
+                        <p class="setting-description">Update your password for security</p>
+                    </div>
+                    <button class="btn btn-secondary" id="changePasswordBtn">Change Password</button>
+                </div>
+                
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3 class="setting-title">Data Export</h3>
+                        <p class="setting-description">Download all your health data and chat history</p>
+                    </div>
+                    <button class="btn btn-secondary" id="exportDataBtn">Export Data</button>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h3 class="setting-title">Clear All Chat History</h3>
+                        <p class="setting-description">Permanently delete all your chat history with the AI assistant</p>
+                    </div>
+                    <button class="btn btn-secondary" id="clearAllChatBtn">Clear All Chats</button>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="danger-section">
+                    <div class="section-title">
+                        <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        Danger Zone
+                    </div>
+                    
+                    <div class="danger-warning">
+                        <svg class="danger-warning-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        <div class="danger-warning-content">
+                            <h4 class="danger-warning-title">Warning: Irreversible Actions</h4>
+                            <p class="danger-warning-text">The following actions will permanently delete your data or account. This cannot be undone. Please proceed with caution.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3 class="setting-title" style="color: var(--danger);">Delete Account</h3>
+                            <p class="setting-description">Permanently delete your MediTrack+ account and all associated data</p>
+                        </div>
+                        <button class="btn btn-danger" id="deleteAccountBtn">Delete Account</button>
+                    </div>
+                </div>
+            </div>
+                       <!-- Status Indicator -->
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Secure connection • Your health data is encrypted and protected</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Email Modal -->
+    <div class="modal-overlay" id="changeEmailModal">
+        <div class="modal">
+            <h3 class="modal-title">Change Email Address</h3>
+            <p class="modal-description">
+                Enter your new email address. We'll send a verification link to confirm.
+            </p>
+            <form id="changeEmailForm">
+                {% csrf_token %}
+                <input type="email" class="modal-input" id="newEmail" placeholder="New email address" required>
+                <input type="password" class="modal-input" id="currentPasswordEmail" placeholder="Current password" required>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelChangeEmail">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="confirmChangeEmailBtn">Change Email</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div class="modal-overlay" id="changePasswordModal">
+        <div class="modal">
+            <h3 class="modal-title">Change Password</h3>
+            <p class="modal-description">
+                Update your password to keep your account secure.
+            </p>
+            <form id="changePasswordForm">
+                {% csrf_token %}
+                <input type="password" class="modal-input" id="currentPassword" placeholder="Current password" required>
+                <input type="password" class="modal-input" id="newPassword" placeholder="New password" required>
+                <input type="password" class="modal-input" id="confirmNewPassword" placeholder="Confirm new password" required>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelChangePassword">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="confirmChangePasswordBtn">Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div class="modal-overlay" id="deleteAccountModal">
+        <div class="modal">
+            <h3 class="modal-title danger">
+                <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Delete Account
+            </h3>
+            <p class="modal-description">
+                This will permanently delete your MediTrack+ account and all associated data:
+                <br><br>
+                • Your account profile and settings<br>
+                • All health data and records<br>
+                • Chat history with AI assistant<br>
+                • Medication and symptom tracking data<br>
+                <br>
+                You will lose access to all MediTrack+ features and cannot recover your account.
+            </p>
+            <p class="modal-description">
+                Type <strong>"DELETE MY ACCOUNT"</strong> to confirm:
+            </p>
+            <input type="text" class="modal-input" id="confirmAccountDelete" placeholder="Type DELETE MY ACCOUNT here">
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelAccountDelete">Cancel</button>
+                <button class="btn btn-danger" id="confirmAccountDeleteBtn" disabled>Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Data Modal -->
+    <div class="modal-overlay" id="exportDataModal">
+        <div class="modal">
+            <h3 class="modal-title">Export Your Data</h3>
+            <p class="modal-description">
+                We'll prepare a complete export of all your MediTrack+ data including:
+                <br><br>
+                • Personal profile information<br>
+                • Health records and history<br>
+                • Chat conversations<br>
+                • Settings and preferences<br>
+                <br>
+                The export will be sent to your email address: <strong>{{ user.email }}</strong>
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="cancelExportData">Cancel</button>
+                <button class="btn btn-primary" id="confirmExportDataBtn">Request Data Export</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'mainapp/js/settings.js' %}"></script>
+</body>
+</html>

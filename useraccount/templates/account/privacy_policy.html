@@ -1,0 +1,1492 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | MediTrack+</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Modern CSS Reset and Base Styles */
+        :root {
+            --primary: #1976d2;
+            --primary-dark: #1565c0;
+            --primary-light: #e3f2fd;
+            --secondary: #43a047;
+            --secondary-dark: #388e3c;
+            --accent: #ff9800;
+            --error: #d32f2f;
+            --success: #43a047;
+            --warning: #ff9800;
+            
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #eeeeee;
+            --gray-300: #e0e0e0;
+            --gray-400: #bdbdbd;
+            --gray-500: #9e9e9e;
+            --gray-600: #757575;
+            --gray-700: #616161;
+            --gray-800: #424242;
+            --gray-900: #212121;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+            
+            --max-width: 1200px;
+            --sidebar-width: 280px;
+            --header-height: 120px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--gray-900);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Main Container */
+        .legal-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 20px 40px;
+            position: relative;
+        }
+        
+        /* Header */
+        .legal-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 40px 0;
+            margin: 20px 0 30px;
+            border-radius: var(--radius-xl);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .legal-header h1 {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.025em;
+        }
+        
+        .legal-header p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .header-decoration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .header-decoration::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        /* HIPAA Banner */
+        .hipaa-banner {
+            background: linear-gradient(135deg, #1976d2, #42a5f5);
+            color: white;
+            padding: 25px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .hipaa-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .hipaa-banner h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hipaa-banner p {
+            font-size: 16px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Main Layout */
+        .legal-layout {
+            display: grid;
+            grid-template-columns: var(--sidebar-width) 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        /* Sidebar Navigation */
+        .legal-sidebar {
+            position: sticky;
+            top: 30px;
+            height: fit-content;
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .sidebar-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+        
+        .sidebar-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--gray-700);
+            border-radius: var(--radius-md);
+            transition: var(--transition-fast);
+            font-weight: 500;
+            border: 1px solid transparent;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            transform: translateX(4px);
+            border-color: var(--primary-light);
+        }
+        
+        .nav-links a.active {
+            background: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+            border-color: var(--primary);
+        }
+        
+        .nav-links a.active::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 60%;
+            background: var(--secondary);
+            border-radius: var(--radius-full);
+        }
+        
+        /* Main Content */
+        .legal-content {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+        }
+        
+        /* Section Cards */
+        .section-card {
+            scroll-margin-top: 100px;
+            padding: 32px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 32px;
+            position: relative;
+            transition: var(--transition);
+            background: var(--white);
+        }
+        
+        .section-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        .section-card.highlight {
+            background: linear-gradient(135deg, var(--primary-light) 0%, transparent 100%);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .section-card.warning {
+            background: linear-gradient(135deg, #fff3e0 0%, transparent 100%);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .section-card.important {
+            background: linear-gradient(135deg, #ffebee 0%, transparent 100%);
+            border-left: 4px solid var(--error);
+        }
+        
+        .section-card.info {
+            background: linear-gradient(135deg, #e8f5e9 0%, transparent 100%);
+            border-left: 4px solid var(--success);
+        }
+        
+        .section-card.hipaa {
+            background: linear-gradient(135deg, #e3f2fd 0%, transparent 100%);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            background: var(--primary);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .section-card.warning .section-icon {
+            background: var(--warning);
+        }
+        
+        .section-card.important .section-icon {
+            background: var(--error);
+        }
+        
+        .section-card.info .section-icon {
+            background: var(--success);
+        }
+        
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--gray-900);
+            line-height: 1.3;
+        }
+        
+        .section-content {
+            color: var(--gray-700);
+            line-height: 1.7;
+        }
+        
+        .section-content p {
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+        
+        .section-content ul, .section-content ol {
+            margin: 16px 0 16px 24px;
+        }
+        
+        .section-content li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 8px;
+        }
+        
+        .section-content li::marker {
+            color: var(--primary);
+        }
+        
+        .section-content h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 24px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+        
+        .highlight-text {
+            background: linear-gradient(120deg, var(--primary-light) 0%, var(--primary-light) 100%);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        /* Data Categories Grid */
+        .data-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+        
+        .data-category {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .data-category:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        
+        .data-category h4 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .data-category ul {
+            margin-left: 20px;
+        }
+        
+        /* Info Boxes */
+        .info-box {
+            background: var(--primary-light);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .security-box {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            border-left: 4px solid var(--success);
+        }
+        
+        .rights-box {
+            background: #fff3e0;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            border-left: 4px solid var(--warning);
+        }
+        
+        /* Contact Grid */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+        
+        .contact-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        
+        .contact-card h4 {
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        
+        .contact-card p {
+            color: var(--gray-700);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--gray-200);
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 2px solid transparent;
+            min-width: 140px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+        
+        .btn-tertiary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+        
+        .btn-tertiary:hover {
+            background: var(--gray-200);
+            color: var(--gray-900);
+            transform: translateY(-2px);
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 12px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .mobile-nav-toggle:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .mobile-nav-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 300ms ease;
+        }
+        
+        .mobile-nav-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 90%;
+            max-width: 320px;
+            height: 100%;
+            background: var(--white);
+            z-index: 1001;
+            transform: translateX(-100%);
+            transition: transform 300ms ease;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            padding: 24px;
+        }
+        
+        .mobile-nav.active {
+            transform: translateX(0);
+        }
+        
+        .mobile-nav-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+        
+        .mobile-nav-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .close-mobile-nav {
+            background: var(--gray-100);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-fast);
+        }
+        
+        .close-mobile-nav:hover {
+            background: var(--gray-200);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .legal-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .legal-sidebar {
+                display: none;
+            }
+            
+            .mobile-nav-toggle {
+                display: flex;
+            }
+            
+            .legal-content {
+                padding: 30px;
+            }
+            
+            .legal-header h1 {
+                font-size: 36px;
+            }
+            
+            .data-categories {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .legal-container {
+                padding: 0 16px 30px;
+            }
+            
+            .legal-header {
+                padding: 32px 0;
+                margin: 16px 0 24px;
+                border-radius: var(--radius-lg);
+            }
+            
+            .legal-header h1 {
+                font-size: 32px;
+            }
+            
+            .legal-header p {
+                font-size: 16px;
+            }
+            
+            .hipaa-banner {
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .hipaa-banner h3 {
+                font-size: 20px;
+            }
+            
+            .legal-content {
+                padding: 24px;
+            }
+            
+            .section-card {
+                padding: 24px;
+                margin-bottom: 24px;
+            }
+            
+            .section-title {
+                font-size: 24px;
+            }
+            
+            .section-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .legal-header h1 {
+                font-size: 28px;
+            }
+            
+            .legal-header p {
+                font-size: 15px;
+            }
+            
+            .section-card {
+                padding: 20px;
+            }
+            
+            .section-title {
+                font-size: 22px;
+            }
+            
+            .mobile-nav {
+                width: 85%;
+            }
+        }
+        
+        /* Animation for section highlight */
+        @keyframes highlight-pulse {
+            0% { background-color: rgba(227, 242, 253, 0.8); }
+            50% { background-color: rgba(227, 242, 253, 0.4); }
+            100% { background-color: transparent; }
+        }
+        
+        .section-card.highlighted {
+            animation: highlight-pulse 2s ease;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .legal-sidebar,
+            .mobile-nav-toggle,
+            .mobile-nav,
+            .mobile-nav-overlay,
+            .action-buttons {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+                color: black;
+            }
+            
+            .legal-container {
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            
+            .legal-header {
+                box-shadow: none;
+                border-radius: 0;
+                margin: 0;
+                padding: 20px 0;
+            }
+            
+            .hipaa-banner {
+                background: #f0f0f0 !important;
+                color: black !important;
+                border: 1px solid #ccc !important;
+            }
+            
+            .legal-content {
+                box-shadow: none;
+                border: none;
+                padding: 20px;
+            }
+            
+            .section-card {
+                break-inside: avoid;
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="legal-container">
+        <!-- Header -->
+        <header class="legal-header">
+            <div class="header-decoration"></div>
+            <div class="header-content">
+                <h1>🔒 Privacy Policy</h1>
+                <p>MediTrack+ Healthcare Management Platform</p>
+                <div class="header-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z"/>
+                    </svg>
+                    Last Updated: December 12, 2024
+                </div>
+            </div>
+        </header>
+
+        <!-- HIPAA Banner -->
+        <div class="hipaa-banner">
+            <h3>🔒 HIPAA Compliant Healthcare Platform</h3>
+            <p>Your health information is protected under the Health Insurance Portability and Accountability Act (HIPAA)</p>
+        </div>
+
+        <!-- Mobile Navigation Toggle -->
+        <button class="mobile-nav-toggle" id="mobileToggle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+            Menu
+        </button>
+
+        <!-- Mobile Navigation Overlay -->
+        <div class="mobile-nav-overlay" id="mobileOverlay"></div>
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav" id="mobileNav">
+            <div class="mobile-nav-header">
+                <h3>📑 Navigation</h3>
+                <button class="close-mobile-nav" id="closeMobileNav" aria-label="Close navigation">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="nav-links">
+                <a href="#section1" class="active">
+                    <span>1</span>
+                    Introduction
+                </a>
+                <a href="#section2">
+                    <span>2</span>
+                    Information We Collect
+                </a>
+                <a href="#section3">
+                    <span>3</span>
+                    How We Use Your Information
+                </a>
+                <a href="#section4">
+                    <span>4</span>
+                    How We Protect Your Information
+                </a>
+                <a href="#section5">
+                    <span>5</span>
+                    Information Sharing & Disclosure
+                </a>
+                <a href="#section6">
+                    <span>6</span>
+                    Your Rights
+                </a>
+                <a href="#section7">
+                    <span>7</span>
+                    Data Retention
+                </a>
+                <a href="#section8">
+                    <span>8</span>
+                    Children's Privacy
+                </a>
+                <a href="#section9">
+                    <span>9</span>
+                    International Data Transfers
+                </a>
+                <a href="#section10">
+                    <span>10</span>
+                    Changes to This Policy
+                </a>
+                <a href="#section11">
+                    <span>11</span>
+                    Contact Information
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Layout -->
+        <div class="legal-layout">
+            <!-- Desktop Sidebar -->
+            <aside class="legal-sidebar">
+                <div class="sidebar-header">
+                    <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                        Quick Navigation
+                    </h3>
+                </div>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#section1" class="active">1. Introduction</a></li>
+                        <li><a href="#section2">2. Information We Collect</a></li>
+                        <li><a href="#section3">3. How We Use Your Information</a></li>
+                        <li><a href="#section4">4. How We Protect Your Information</a></li>
+                        <li><a href="#section5">5. Information Sharing & Disclosure</a></li>
+                        <li><a href="#section6">6. Your Rights</a></li>
+                        <li><a href="#section7">7. Data Retention</a></li>
+                        <li><a href="#section8">8. Children's Privacy</a></li>
+                        <li><a href="#section9">9. International Data Transfers</a></li>
+                        <li><a href="#section10">10. Changes to This Policy</a></li>
+                        <li><a href="#section11">11. Contact Information</a></li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="legal-content" id="mainContent">
+                <!-- Section 1: Introduction -->
+                <section class="section-card hipaa" id="section1">
+                    <div class="section-header">
+                        <div class="section-icon">1</div>
+                        <h2 class="section-title">Introduction</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>Welcome to MediTrack+. We are committed to protecting your privacy and the security of your health information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our healthcare management platform.</p>
+                        
+                        <div class="info-box">
+                            <p><strong>HIPAA Compliance:</strong> MediTrack+ operates as a HIPAA-compliant entity. We are committed to maintaining the privacy and security of your Protected Health Information (PHI) as required by the Health Insurance Portability and Accountability Act and other applicable laws.</p>
+                        </div>
+                        
+                        <p>By using MediTrack+, you consent to the data practices described in this policy. If you do not agree with the terms of this Privacy Policy, please do not access or use the Service.</p>
+                    </div>
+                </section>
+
+                <!-- Section 2: Information We Collect -->
+                <section class="section-card highlight" id="section2">
+                    <div class="section-header">
+                        <div class="section-icon">2</div>
+                        <h2 class="section-title">Information We Collect</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>We collect several types of information to provide and improve our Service to you:</p>
+                        
+                        <div class="data-categories">
+                            <!-- Personal Information -->
+                            <div class="data-category">
+                                <h4>📝 Personal Information</h4>
+                                <ul>
+                                    <li>Name, email address, phone number</li>
+                                    <li>Date of birth and gender</li>
+                                    <li>Contact information</li>
+                                    <li>Account credentials</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Health Information -->
+                            <div class="data-category">
+                                <h4>🏥 Protected Health Information (PHI)</h4>
+                                <ul>
+                                    <li>Medical history and records</li>
+                                    <li>Medication information</li>
+                                    <li>Treatment plans</li>
+                                    <li>Lab results and test reports</li>
+                                    <li>Insurance information</li>
+                                    <li>Billing and payment information</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Usage Data -->
+                            <div class="data-category">
+                                <h4>📊 Usage & Technical Data</h4>
+                                <ul>
+                                    <li>IP address and device information</li>
+                                    <li>Browser type and version</li>
+                                    <li>Pages visited and time spent</li>
+                                    <li>App features used</li>
+                                    <li>Error logs and performance data</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <h3>2.1 How We Collect Information</h3>
+                        <p>We collect information through:</p>
+                        <ul>
+                            <li><strong>Direct Collection:</strong> Information you provide when creating an account, updating your profile, or entering health data</li>
+                            <li><strong>Automatic Collection:</strong> Usage data collected through cookies and similar technologies</li>
+                            <li><strong>Third-Party Sources:</strong> Information from healthcare providers, laboratories, or insurance companies with your authorization</li>
+                            <li><strong>Health Devices:</strong> Data from connected health devices (with your permission)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Section 3: How We Use Your Information -->
+                <section class="section-card" id="section3">
+                    <div class="section-header">
+                        <div class="section-icon">3</div>
+                        <h2 class="section-title">How We Use Your Information</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>We use your information for the following purposes:</p>
+                        
+                        <div class="data-categories">
+                            <!-- Service Provision -->
+                            <div class="data-category">
+                                <h4>🔧 Service Provision</h4>
+                                <ul>
+                                    <li>Create and manage your account</li>
+                                    <li>Provide healthcare management tools</li>
+                                    <li>Store and organize health records</li>
+                                    <li>Send appointment reminders</li>
+                                    <li>Enable secure communications</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Healthcare Operations -->
+                            <div class="data-category">
+                                <h4>🏥 Healthcare Operations</h4>
+                                <ul>
+                                    <li>Coordinate care with providers</li>
+                                    <li>Process insurance claims</li>
+                                    <li>Manage treatment plans</li>
+                                    <li>Monitor medication adherence</li>
+                                    <li>Generate health insights</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Legal & Security -->
+                            <div class="data-category">
+                                <h4>⚖️ Legal & Security</h4>
+                                <ul>
+                                    <li>Comply with legal obligations</li>
+                                    <li>Protect against fraud and abuse</li>
+                                    <li>Ensure HIPAA compliance</li>
+                                    <li>Maintain service security</li>
+                                    <li>Respond to legal requests</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <h3>3.1 Legal Bases for Processing (GDPR)</h3>
+                        <p>For users in the European Union, we process your personal data under the following legal bases:</p>
+                        <ul>
+                            <li><strong>Consent:</strong> When you have given clear consent</li>
+                            <li><strong>Contract:</strong> To fulfill our contractual obligations</li>
+                            <li><strong>Legal Obligation:</strong> To comply with legal requirements</li>
+                            <li><strong>Vital Interests:</strong> To protect vital interests</li>
+                            <li><strong>Legitimate Interests:</strong> For our legitimate business interests</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Section 4: How We Protect Your Information -->
+                <section class="section-card info" id="section4">
+                    <div class="section-header">
+                        <div class="section-icon">4</div>
+                        <h2 class="section-title">How We Protect Your Information</h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="security-box">
+                            <p><strong>🔐 Enterprise-Grade Security:</strong> We implement comprehensive security measures to protect your health information.</p>
+                        </div>
+                        
+                        <h3>4.1 Security Measures</h3>
+                        <p>Our security measures include:</p>
+                        <ul>
+                            <li><strong>End-to-End Encryption:</strong> All health data is encrypted in transit and at rest</li>
+                            <li><strong>Access Controls:</strong> Role-based access controls and authentication</li>
+                            <li><strong>Regular Audits:</strong> Security audits and penetration testing</li>
+                            <li><strong>Data Backup:</strong> Regular encrypted backups</li>
+                            <li><strong>Physical Security:</strong> Secure data centers</li>
+                            <li><strong>Employee Training:</strong> Regular HIPAA and security training</li>
+                        </ul>
+                        
+                        <h3>4.2 HIPAA Safeguards</h3>
+                        <p>We implement all required HIPAA safeguards:</p>
+                        <ul>
+                            <li><strong>Administrative Safeguards:</strong> Security management, workforce training, contingency planning</li>
+                            <li><strong>Physical Safeguards:</strong> Facility access controls, workstation security</li>
+                            <li><strong>Technical Safeguards:</strong> Access control, audit controls, integrity controls, transmission security</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Section 5: Information Sharing & Disclosure -->
+                <section class="section-card" id="section5">
+                    <div class="section-header">
+                        <div class="section-icon">5</div>
+                        <h2 class="section-title">Information Sharing & Disclosure</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>We do not sell your health information. We may share your information only in the following circumstances:</p>
+                        
+                        <h3>5.1 With Your Consent</h3>
+                        <p>We share information with healthcare providers, family members, or other parties only with your explicit written authorization.</p>
+                        
+                        <h3>5.2 For Treatment, Payment, and Healthcare Operations</h3>
+                        <p>We may share PHI with:</p>
+                        <ul>
+                            <li>Healthcare providers involved in your treatment</li>
+                            <li>Insurance companies for payment processing</li>
+                            <li>Healthcare clearinghouses</li>
+                            <li>Business associates under HIPAA agreements</li>
+                        </ul>
+                        
+                        <h3>5.3 Legal Requirements</h3>
+                        <p>We may disclose information when required by law, such as:</p>
+                        <ul>
+                            <li>Court orders or subpoenas</li>
+                            <li>Government investigations</li>
+                            <li>Public health reporting requirements</li>
+                            <li>Law enforcement requests (with proper legal process)</li>
+                        </ul>
+                        
+                        <h3>5.4 Service Providers</h3>
+                        <p>We may share information with trusted service providers who assist in operating our Service, subject to confidentiality agreements and HIPAA Business Associate Agreements where required.</p>
+                    </div>
+                </section>
+
+                <!-- Section 6: Your Rights -->
+                <section class="section-card important" id="section6">
+                    <div class="section-header">
+                        <div class="section-icon">6</div>
+                        <h2 class="section-title">Your Rights</h2>
+                    </div>
+                    <div class="section-content">
+                        <div class="rights-box">
+                            <p><strong>🎯 You have important rights regarding your health information:</strong></p>
+                        </div>
+                        
+                        <div class="data-categories">
+                            <!-- HIPAA Rights -->
+                            <div class="data-category">
+                                <h4>⚖️ HIPAA Rights</h4>
+                                <ul>
+                                    <li>Right to access your health information</li>
+                                    <li>Right to request corrections</li>
+                                    <li>Right to an accounting of disclosures</li>
+                                    <li>Right to request restrictions</li>
+                                    <li>Right to confidential communications</li>
+                                    <li>Right to a copy of this notice</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Privacy Rights -->
+                            <div class="data-category">
+                                <h4>🔐 General Privacy Rights</h4>
+                                <ul>
+                                    <li>Right to access your personal data</li>
+                                    <li>Right to rectification</li>
+                                    <li>Right to erasure ("right to be forgotten")</li>
+                                    <li>Right to restrict processing</li>
+                                    <li>Right to data portability</li>
+                                    <li>Right to object to processing</li>
+                                    <li>Right to withdraw consent</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <h3>6.1 Exercising Your Rights</h3>
+                        <p>To exercise any of these rights, please contact our Privacy Officer at <strong>privacy@meditrack.com</strong>. We will respond to your request within 30 days as required by HIPAA.</p>
+                    </div>
+                </section>
+
+                <!-- Section 7: Data Retention -->
+                <section class="section-card" id="section7">
+                    <div class="section-header">
+                        <div class="section-icon">7</div>
+                        <h2 class="section-title">Data Retention</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>We retain your information for as long as necessary to:</p>
+                        <ul>
+                            <li>Provide the Service to you</li>
+                            <li>Comply with legal obligations (HIPAA requires retention for 6 years from creation or last use)</li>
+                            <li>Resolve disputes and enforce agreements</li>
+                            <li>Maintain business records</li>
+                        </ul>
+                        <p>When we no longer need to retain your information, we will securely delete or anonymize it.</p>
+                    </div>
+                </section>
+
+                <!-- Section 8: Children's Privacy -->
+                <section class="section-card warning" id="section8">
+                    <div class="section-header">
+                        <div class="section-icon">8</div>
+                        <h2 class="section-title">Children's Privacy</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>MediTrack+ is not intended for children under 18. We do not knowingly collect information from children under 18. If you are a parent or guardian and believe your child has provided us with personal information, please contact us immediately.</p>
+                        <p>For minors between 13-18, we may process information with parental consent or as permitted by law for healthcare purposes.</p>
+                    </div>
+                </section>
+
+                <!-- Section 9: International Data Transfers -->
+                <section class="section-card" id="section9">
+                    <div class="section-header">
+                        <div class="section-icon">9</div>
+                        <h2 class="section-title">International Data Transfers</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>If you are located outside the United States, please note that we transfer and process your information in the United States. We use appropriate safeguards, such as Standard Contractual Clauses, to protect your information during international transfers.</p>
+                    </div>
+                </section>
+
+                <!-- Section 10: Changes to This Policy -->
+                <section class="section-card" id="section10">
+                    <div class="section-header">
+                        <div class="section-icon">10</div>
+                        <h2 class="section-title">Changes to This Policy</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>We may update this Privacy Policy periodically. We will notify you of significant changes by:</p>
+                        <ul>
+                            <li>Posting the new Privacy Policy on this page</li>
+                            <li>Sending you an email notification</li>
+                            <li>Updating the "Last Updated" date</li>
+                            <li>Displaying a notice in the Service</li>
+                        </ul>
+                        <p>Your continued use of the Service after changes constitutes acceptance of the updated policy.</p>
+                    </div>
+                </section>
+
+                <!-- Section 11: Contact Information -->
+                <section class="section-card" id="section11">
+                    <div class="section-header">
+                        <div class="section-icon">11</div>
+                        <h2 class="section-title">Contact Information</h2>
+                    </div>
+                    <div class="section-content">
+                        <p>If you have questions about this Privacy Policy or our privacy practices, please contact:</p>
+                        
+                        <div class="contact-grid">
+                            <!-- Privacy Officer -->
+                            <div class="contact-card">
+                                <h4>📧 Privacy Officer</h4>
+                                <p>For privacy-related inquiries:</p>
+                                <p>
+                                    Email: privacy@meditrack.com<br>
+                                    Phone: +1 (555) 123-4567 ext. 2
+                                </p>
+                            </div>
+                            
+                            <!-- Security Officer -->
+                            <div class="contact-card">
+                                <h4>🔐 Security Officer</h4>
+                                <p>For security-related concerns:</p>
+                                <p>
+                                    Email: security@meditrack.com<br>
+                                    Phone: +1 (555) 123-4567 ext. 3
+                                </p>
+                            </div>
+                            
+                            <!-- General Contact -->
+                            <div class="contact-card">
+                                <h4>🏢 General Contact</h4>
+                                <p>MediTrack+ Headquarters:</p>
+                                <p>
+                                    123 Healthcare Ave, Suite 100<br>
+                                    San Francisco, CA 94107<br>
+                                    United States
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="{% url 'login' %}" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        Back to Login
+                    </a>
+                    <button onclick="window.print()" class="btn btn-secondary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 6 2 18 2 18 9"/>
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                            <rect x="6" y="14" width="12" height="8"/>
+                        </svg>
+                        Print Policy
+                    </button>
+                    <a href="{% url 'terms' %}" class="btn btn-tertiary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        View Terms & Conditions
+                    </a>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const mobileToggle = document.getElementById('mobileToggle');
+            const mobileNav = document.getElementById('mobileNav');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const closeMobileNav = document.getElementById('closeMobileNav');
+            const mainContent = document.getElementById('mainContent');
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            // Mobile Navigation Toggle
+            mobileToggle.addEventListener('click', function() {
+                mobileNav.classList.add('active');
+                mobileOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Close Mobile Navigation
+            function closeMobileMenu() {
+                mobileNav.classList.remove('active');
+                mobileOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            
+            closeMobileNav.addEventListener('click', closeMobileMenu);
+            mobileOverlay.addEventListener('click', closeMobileMenu);
+            
+            // Handle Navigation Link Clicks
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        // Close mobile menu if open
+                        closeMobileMenu();
+                        
+                        // Remove active class from all links
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        
+                        // Add active class to clicked link
+                        this.classList.add('active');
+                        
+                        // Scroll to section
+                        const headerOffset = 100;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                        
+                        // Add highlight animation
+                        targetElement.classList.remove('highlighted');
+                        void targetElement.offsetWidth; // Trigger reflow
+                        targetElement.classList.add('highlighted');
+                        
+                        // Remove highlight class after animation
+                        setTimeout(() => {
+                            targetElement.classList.remove('highlighted');
+                        }, 2000);
+                        
+                        // Update URL hash
+                        history.pushState(null, null, targetId);
+                    }
+                });
+            });
+            
+            // Handle scroll to update active link
+            function updateActiveLink() {
+                const sections = document.querySelectorAll('.section-card');
+                const scrollPosition = window.scrollY + 150;
+                
+                let currentSectionId = '';
+                
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        currentSectionId = section.getAttribute('id');
+                    }
+                });
+                
+                // Update active link
+                if (currentSectionId) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${currentSectionId}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            }
+            
+            window.addEventListener('scroll', updateActiveLink);
+            
+            // Keyboard navigation support
+            document.addEventListener('keydown', function(e) {
+                // Close mobile nav with Escape key
+                if (e.key === 'Escape' && mobileNav.classList.contains('active')) {
+                    closeMobileMenu();
+                }
+            });
+            
+            // Initialize active section on load
+            const urlHash = window.location.hash;
+            if (urlHash) {
+                const targetElement = document.querySelector(urlHash);
+                if (targetElement) {
+                    // Update active link
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === urlHash) {
+                            link.classList.add('active');
+                        }
+                    });
+                    
+                    // Scroll to section after a short delay
+                    setTimeout(() => {
+                        const headerOffset = 100;
+                        const elementPosition = targetElement.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }, 300);
+                }
+            } else {
+                // Set first link as active on initial load
+                if (navLinks.length > 0) {
+                    navLinks[0].classList.add('active');
+                }
+            }
+            
+            // Add click handler for print button
+            const printButton = document.querySelector('button[onclick*="print"]');
+            if (printButton) {
+                printButton.onclick = null; // Remove inline handler
+                printButton.addEventListener('click', function() {
+                    window.print();
+                });
+            }
+            
+            // Initial scroll position check
+            updateActiveLink();
+        });
+    </script>
+</body>
+</html>

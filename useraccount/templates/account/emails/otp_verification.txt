@@ -1,0 +1,35 @@
+Welcome to MediTrack+!
+
+Hello {{ name }},
+
+Thank you for signing up with MediTrack+ - your secure healthcare management platform.
+
+To complete your registration and access your account, please verify your email address.
+
+Your Verification Code: {{ otp }}
+
+Enter this 6-digit code in the verification page to complete your registration.
+
+⚠️ IMPORTANT: This OTP will expire in 10 minutes.
+
+🔒 Security Reminders:
+- Never share this OTP with anyone
+- MediTrack+ staff will never ask for your OTP
+- This code is for your use only
+- If you didn't request this, please ignore this email
+
+Verification URL: {{ verification_url }}
+
+If you're having trouble, copy and paste the above URL into your browser.
+
+Need help? Contact our support team at support@meditrack.com
+
+Best regards,
+The MediTrack+ Team
+
+---
+MediTrack+ - Secure Healthcare Management
+© 2024 MediTrack+. All rights reserved.
+HIPAA Compliant | Your Health Data Security is Our Priority
+
+This is an automated message. Please do not reply to this email.
