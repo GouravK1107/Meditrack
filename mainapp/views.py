@@ -316,10 +316,30 @@ def edit_profile(request):
             
             profile.save()
             
+            # ✅ IMPORTANT: Fetch fresh data to return to frontend
+            # This ensures the frontend has the latest data
+            updated_profile_data = {
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'email': user.email,
+                'phone': profile.phone,
+                'dateOfBirth': profile.date_of_birth.strftime('%Y-%m-%d') if profile.date_of_birth else '',
+                'gender': profile.gender,
+                'bloodType': profile.blood_type,
+                'height': profile.height,
+                'weight': profile.weight,
+                'allergies': profile.allergies,
+                'medications': profile.medications,
+                'emergencyName': profile.emergency_name,
+                'emergencyRelation': profile.emergency_relation,
+                'emergencyPhone': profile.emergency_phone,
+            }
+            
             return JsonResponse({
                 'success': True,
                 'message': 'Profile updated successfully!',
-                'redirect_url': '/profile/'
+                'redirect_url': '/profile/',
+                'updated_profile': updated_profile_data  # ✅ Send back updated data
             })
             
         except Exception as e:
@@ -2346,3 +2366,41 @@ def clear_all_chat(request):
             'success': False,
             'message': f'Error clearing chat history: {str(e)}'
         }, status=500)
+    
+import requests
+
+@csrf_exempt
+@login_required
+def create_reminder(request):
+
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        medication = data.get("medication")
+        dosage = data.get("dosage")
+        reminder_time = data.get("time")
+
+        reminder = MedicationReminder.objects.create(
+            user=request.user,
+            medication_name=medication,
+            dosage=dosage,
+            reminder_time=reminder_time
+        )
+        profile = UserProfile.objects.get(user=request.user)
+        phone_number = f"+91{profile.phone}"
+        user_name = f"{request.user.first_name} {request.user.last_name}"
+        # Send data to n8n webhook
+        webhook_url = "https://shreyas1309.app.n8n.cloud/webhook-test/meditrack-reminder"
+
+        payload = {
+            "user": user_name,
+            "email": request.user.email,
+            "medication": medication,
+            "phone" : phone_number,
+            "dosage": dosage,
+            "time": reminder_time
+        }
+
+        requests.post(webhook_url, json=payload)
+
+        return JsonResponse({"success": True})

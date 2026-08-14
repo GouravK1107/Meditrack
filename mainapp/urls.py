@@ -6,6 +6,7 @@ from mainapp import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('api/reminder/create/', views.create_reminder, name='create_reminder'),
     path('profile/create/', views.create_profile, name='create_profile'),
     
     path('profile/edit/', views.edit_profile, name='edit_profile'),

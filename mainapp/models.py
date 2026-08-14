@@ -172,3 +172,16 @@ class DataExport(models.Model):
         return request.build_absolute_uri(
             reverse('download_export', kwargs={'token': self.export_token})
         )
+    
+class MedicationReminder(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    medication_name = models.CharField(max_length=200)
+    dosage = models.CharField(max_length=100)
+    reminder_time = models.DateTimeField()
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default="active")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.medication_name}"

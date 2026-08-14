@@ -1189,3 +1189,427 @@ body {
 #messageInput:focus {
     outline: none;
 }
+
+/* Reminder Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.reminder-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    width: 90%;
+    max-width: 450px;
+    z-index: 2001;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    border: 1px solid rgba(25, 118, 210, 0.1);
+}
+
+.reminder-modal.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.reminder-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #1976D2, #1565C0);
+    color: white;
+}
+
+.reminder-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.reminder-modal-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.reminder-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
+.reminder-modal-body {
+    padding: 24px;
+}
+
+.reminder-form-group {
+    margin-bottom: 20px;
+}
+
+.reminder-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.reminder-label svg {
+    color: var(--primary);
+}
+
+.reminder-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    font-size: 15px;
+    color: var(--text-dark);
+    background: white;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.reminder-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+}
+
+.reminder-input::placeholder {
+    color: #94A3B8;
+}
+
+.reminder-options {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-light);
+}
+
+.reminder-repeat-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.reminder-repeat-option input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.reminder-repeat-option label {
+    font-size: 14px;
+    color: var(--text-gray);
+    cursor: pointer;
+}
+
+.reminder-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    background: var(--bg-light);
+    border-top: 1px solid var(--border-light);
+}
+
+.reminder-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: var(--radius-lg);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    font-family: inherit;
+}
+
+.reminder-btn-primary {
+    background: var(--bg-gradient);
+    color: white;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.25);
+}
+
+.reminder-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(25, 118, 210, 0.3);
+}
+
+.reminder-btn-secondary {
+    background: white;
+    color: var(--text-gray);
+    border: 1px solid var(--border-light);
+}
+
+.reminder-btn-secondary:hover {
+    background: var(--bg-light);
+    color: var(--text-dark);
+    border-color: var(--primary-light);
+}
+
+/* Animation for modal */
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -48%) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.reminder-modal.active {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+/* Mobile Responsive for Modal */
+@media (max-width: 480px) {
+    .reminder-modal {
+        width: 95%;
+        max-width: none;
+    }
+    
+    .reminder-modal-header {
+        padding: 16px 20px;
+    }
+    
+    .reminder-modal-body {
+        padding: 20px;
+    }
+    
+    .reminder-modal-footer {
+        padding: 16px 20px;
+    }
+    
+    .reminder-btn {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+}
+
+/* Image Upload Button - Updated */
+.image-upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: rgba(67, 160, 71, 0.1);
+    border: 2px solid rgba(67, 160, 71, 0.3);
+    border-radius: 50%;
+    color: var(--secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.image-upload-btn:hover {
+    background: rgba(67, 160, 71, 0.2);
+    border-color: var(--secondary);
+    transform: scale(1.05);
+}
+
+.image-upload-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Image Preview Container - New */
+.image-preview-container {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: rgba(25, 118, 210, 0.05);
+    border-radius: var(--radius-lg);
+    border: 1px dashed var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.image-preview-wrapper {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 2px solid var(--primary);
+}
+
+.image-preview-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 22px;
+    height: 22px;
+    background: #ff4444;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.remove-image-btn:hover {
+    background: #cc0000;
+    transform: scale(1.1);
+}
+
+.remove-image-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.image-preview-text {
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 500;
+}
+
+/* Image Message in Chat - New */
+.message-image {
+    max-width: 250px;
+    max-height: 200px;
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    border: 2px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.message-image:hover {
+    transform: scale(1.02);
+}
+
+.message-bubble.user .message-image {
+    border-color: rgba(255,255,255,0.3);
+}
+
+.message-bubble.bot .message-image {
+    border-color: rgba(25,118,210,0.3);
+}
+
+/* Image Fullscreen Modal - New */
+.image-fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.9);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.image-fullscreen-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.image-fullscreen-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.image-fullscreen-content img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+}
+
+.image-fullscreen-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.image-fullscreen-close:hover {
+    background: rgba(255,255,255,0.3);
+    transform: rotate(90deg);
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    .image-upload-btn {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .image-upload-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .message-image {
+        max-width: 180px;
+        max-height: 150px;
+    }
+}

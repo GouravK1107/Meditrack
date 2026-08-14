@@ -196,10 +196,10 @@ function handleFabAction(e) {
 }
 
 // Export profile data as PDF using jsPDF
+// Export profile data as professional medical report PDF
 async function handleExportData() {
-    showNotification('Preparing your health report...', 'info');
+    showNotification('Generating professional medical report...', 'info');
 
-    // Check if jsPDF is available
     if (typeof window.jspdf === 'undefined') {
         showNotification('PDF export library not loaded', 'error');
         return;
@@ -207,137 +207,757 @@ async function handleExportData() {
 
     setTimeout(() => {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
 
-        // --- Header ---
-        doc.setFontSize(20);
-        doc.setTextColor(33, 150, 243);
-        doc.setFont('helvetica', 'bold');
-        doc.text('MediTrack Health Report', 105, 20, { align: 'center' });
+        const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4',
+            compress: true
+        });
 
-        doc.setFontSize(11);
-        doc.setTextColor(90);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 28, { align: 'center' });
+        // ============================================
+        // DESIGN TOKENS
+        // ============================================
+        const C = {
+            primary:    [25, 118, 210],
+            primaryDark:[15,  80, 160],
+            accent:     [0,  188, 212],
+            red:        [211,  47,  47],
+            redLight:   [255, 235, 235],
+            orange:     [245, 124,   0],
+            orangeLight:[255, 243, 224],
+            green:      [46,  125,  50],
+            greenLight: [232, 245, 233],
+            dark:       [30,   30,  30],
+            mid:        [90,   90,  90],
+            muted:      [140, 140, 140],
+            border:     [220, 220, 220],
+            bg:         [247, 249, 252],
+            bgWhite:    [255, 255, 255],
+            white:      [255, 255, 255],
+        };
 
-        doc.setDrawColor(200);
-        doc.line(20, 32, 190, 32);
+        const PAGE_W  = 210;
+        const PAGE_H  = 297;
+        const MARGIN  = 14;
+        const CONTENT = PAGE_W - MARGIN * 2;  // 182mm usable width
 
-        // --- Layout setup ---
-        let y = 42;
-        const maxY = 275;
-        const boxMargin = 8;
-        const lineHeight = 6;
-        const boxPadding = 4;
+        // ============================================
+        // HELPERS
+        // ============================================
 
-        const drawBox = (title, content) => {
-            const lines = doc.splitTextToSize(content, 150);
-            const boxHeight = lines.length * lineHeight + boxPadding * 2;
+        function rgb(arr) { return `rgb(${arr.join(',')})`; }
 
-            if (y + boxHeight + 10 > maxY) {
-                doc.addPage();
-                y = 20;
-            }
+        function setFill(arr)   { doc.setFillColor(arr[0], arr[1], arr[2]); }
+        function setDraw(arr)   { doc.setDrawColor(arr[0], arr[1], arr[2]); }
+        function setTxt(arr)    { doc.setTextColor(arr[0], arr[1], arr[2]); }
 
-            doc.setDrawColor(220);
-            doc.setFillColor(250, 250, 250);
-            doc.roundedRect(20, y, 170, boxHeight + 8, 3, 3, 'FD');
+        function rect(x, y, w, h, style, r) {
+            if (r) doc.roundedRect(x, y, w, h, r, r, style || 'F');
+            else   doc.rect(x, y, w, h, style || 'F');
+        }
 
+        // Thin horizontal rule
+        function rule(y, color) {
+            setDraw(color || C.border);
+            doc.setLineWidth(0.2);
+            doc.line(MARGIN, y, PAGE_W - MARGIN, y);
+        }
+
+        // Section heading pill
+        function sectionTitle(label, y) {
+            setFill(C.primary);
+            rect(MARGIN, y, CONTENT, 7, 'F', 1.5);
+            doc.setFontSize(9);
             doc.setFont('helvetica', 'bold');
-            doc.setFontSize(12);
-            doc.setTextColor(33, 33, 33);
-            doc.text(title, 25, y + 8);
+            setTxt(C.white);
+            doc.text(label.toUpperCase(), MARGIN + 4, y + 5);
+            return y + 12;
+        }
+
+        // Labeled value pair (key: value) on one line
+        function kvRow(label, value, x, y, labelW, totalW) {
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            setTxt(C.muted);
+            doc.text(label, x, y);
 
             doc.setFont('helvetica', 'normal');
-            doc.setFontSize(10);
-            doc.setTextColor(66, 66, 66);
-            doc.text(lines, 25, y + 16);
+            setTxt(C.dark);
+            const valX = x + labelW;
+            const maxW = totalW - labelW;
+            const lines = doc.splitTextToSize(String(value || '—'), maxW);
+            doc.text(lines[0], valX, y);
+            return y + 6;
+        }
 
-            y += boxHeight + boxMargin + 8;
-        };
+        // Striped data table — returns next Y position
+        function table(headers, rows, x, y, colWidths) {
+            const rowH = 7;
+            const totalW = colWidths.reduce((a, b) => a + b, 0);
 
-        const format = (label, value) => `${label}: ${value ? value : 'Not provided'}`;
+            // Header
+            setFill(C.primary);
+            rect(x, y, totalW, rowH + 1, 'F');
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'bold');
+            setTxt(C.white);
+            let cx = x;
+            for (let i = 0; i < headers.length; i++) {
+                doc.text(headers[i], cx + 3, y + 5.5);
+                cx += colWidths[i];
+            }
+            y += rowH + 1;
 
-        // Get data from the page
-        const displayName = document.getElementById('displayName');
-        const phoneEl = document.getElementById('phone');
-        const genderEl = document.getElementById('gender');
-        const dobEl = document.getElementById('dateOfBirth');
-        const bloodTypeEl = document.getElementById('bloodType');
-        const heightEl = document.getElementById('height');
-        const weightEl = document.getElementById('weight');
-        const bmiEl = document.getElementById('bmi');
-        
-        // Collect data from page
-        const pageData = {
-            fullName: displayName ? displayName.textContent : '',
-            phone: phoneEl ? phoneEl.textContent : '',
-            gender: genderEl ? genderEl.textContent : '',
-            dateOfBirth: dobEl ? dobEl.textContent : '',
-            bloodType: bloodTypeEl ? bloodTypeEl.textContent : '',
-            height: heightEl ? heightEl.textContent : '',
-            weight: weightEl ? weightEl.textContent : '',
-            bmi: bmiEl ? bmiEl.textContent : ''
-        };
+            // Rows
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'normal');
+            for (let r = 0; r < rows.length; r++) {
+                const shade = r % 2 === 0 ? C.bg : C.bgWhite;
+                setFill(shade);
+                rect(x, y, totalW, rowH, 'F');
 
-        // --- Data Fields to Include ---
-        drawBox('Personal Information', [
-            format('Full Name', pageData.fullName),
-            format('Phone Number', pageData.phone),
-            format('Date of Birth', pageData.dateOfBirth),
-            format('Gender', pageData.gender)
-        ].join('\n'));
+                // Subtle bottom border
+                setDraw(C.border);
+                doc.setLineWidth(0.1);
+                doc.line(x, y + rowH, x + totalW, y + rowH);
 
-        drawBox('Physical Details', [
-            format('Blood Type', pageData.bloodType),
-            format('Height', pageData.height),
-            format('Weight', pageData.weight),
-            format('BMI', pageData.bmi)
-        ].join('\n'));
+                cx = x;
+                for (let c = 0; c < headers.length; c++) {
+                    setTxt(C.dark);
+                    const cellText = doc.splitTextToSize(String(rows[r][c] || '—'), colWidths[c] - 5);
+                    doc.text(cellText[0], cx + 3, y + 5);
+                    cx += colWidths[c];
+                }
+                y += rowH;
+            }
+            return y + 4;
+        }
 
-        // Get allergies and medications
+        // Watermark (called once per page)
+        function watermark() {
+            const prev = doc.getTextColor ? null : null;
+            doc.setFontSize(48);
+            doc.setFont('helvetica', 'bold');
+            doc.setGState(new doc.GState({ opacity: 0.04 }));
+            setTxt([0, 0, 0]);
+            doc.text('MEDITRACK+', PAGE_W / 2, PAGE_H / 2 - 10, { align: 'center', angle: 45 });
+            doc.text('CONFIDENTIAL', PAGE_W / 2, PAGE_H / 2 + 26, { align: 'center', angle: 45 });
+            doc.setGState(new doc.GState({ opacity: 1 }));
+        }
+
+        // Standard page header bar (pages 2+)
+        function pageHeader(title, subtitle) {
+            setFill(C.primary);
+            rect(0, 0, PAGE_W, 12, 'F');
+            setFill(C.accent);
+            rect(0, 12, PAGE_W, 2, 'F');
+
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            setTxt(C.white);
+            doc.text(title, MARGIN, 8.5);
+
+            if (subtitle) {
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                doc.text(subtitle, PAGE_W - MARGIN, 8.5, { align: 'right' });
+            }
+        }
+
+        // Standard page footer bar
+        function pageFooter(pageNum, totalPages) {
+            setDraw(C.border);
+            doc.setLineWidth(0.3);
+            doc.line(MARGIN, PAGE_H - 12, PAGE_W - MARGIN, PAGE_H - 12);
+
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            setTxt(C.muted);
+            doc.text('CONFIDENTIAL MEDICAL DOCUMENT  |  MediTrack+  |  www.meditrackplus.com', MARGIN, PAGE_H - 7.5);
+            doc.text(`${pageNum} / ${totalPages}`, PAGE_W - MARGIN, PAGE_H - 7.5, { align: 'right' });
+        }
+
+        // Left accent bar (decoration)
+        function accentBar(yFrom, yTo) {
+            setFill(C.accent);
+            rect(0, yFrom, 3, yTo - yFrom, 'F');
+        }
+
+        // Stat box: colored card with big number
+        function statBox(x, y, w, h, label, value, unit, color, lightColor) {
+            setFill(lightColor);
+            rect(x, y, w, h, 'F', 3);
+            setDraw(color);
+            doc.setLineWidth(0.4);
+            rect(x, y, w, h, 'S', 3);
+
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'bold');
+            setTxt(color);
+            doc.text(label.toUpperCase(), x + 4, y + 7);
+
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            setTxt(color);
+            doc.text(value, x + 4, y + 18);
+
+            if (unit) {
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'normal');
+                setTxt(color);
+                doc.text(unit, x + 4 + doc.getTextWidth(value) + 1, y + 18);
+            }
+        }
+
+        // Badge pill
+        function badge(text, x, y, bgColor, textColor) {
+            const w = doc.getTextWidth(text) + 6;
+            setFill(bgColor);
+            rect(x, y - 4, w, 6, 'F', 3);
+            doc.setFontSize(7.5);
+            doc.setFont('helvetica', 'bold');
+            setTxt(textColor);
+            doc.text(text, x + 3, y);
+            return w;
+        }
+
+        // ============================================
+        // COLLECT DATA FROM DOM
+        // ============================================
+
+        function getEl(id)   { const e = document.getElementById(id); return e ? e.textContent.trim() : ''; }
+        function getAttr(id, attr) { const e = document.getElementById(id); return e ? (e.getAttribute(attr) || e.value || '') : ''; }
+
+        const fullName    = getEl('displayName')    || 'Patient';
+        const phone       = getEl('phone')          || '—';
+        const gender      = getEl('gender')         || '—';
+        const dob         = getEl('dateOfBirth')    || '—';
+        const bloodType   = getEl('bloodType')      || '—';
+        const heightVal   = getEl('height')         || '—';
+        const weightVal   = getEl('weight')         || '—';
+        const bmiRaw      = getEl('bmi')            || '';
+        const emailRaw    = getEl('email') || document.querySelector('.profile-email, [data-field="email"]')?.textContent?.trim() || '—';
+
+        // Age from DOB
+        let age = '—';
+        if (dob && dob !== '—') {
+            try {
+                const bd = new Date(dob);
+                const now = new Date();
+                let a = now.getFullYear() - bd.getFullYear();
+                if (now.getMonth() < bd.getMonth() || (now.getMonth() === bd.getMonth() && now.getDate() < bd.getDate())) a--;
+                if (!isNaN(a)) age = `${a} years`;
+            } catch (_) {}
+        }
+
+        // BMI
+        const bmiNum     = parseFloat((bmiRaw.match(/(\d+\.?\d*)/)||[])[0]) || 0;
+        let bmiCategory = '—', bmiStatus = '—', bmiColor = C.green, bmiLight = C.greenLight;
+        if (bmiNum > 0) {
+            if      (bmiNum < 18.5) { bmiCategory = 'Underweight'; bmiStatus = 'UNDERWEIGHT'; bmiColor = C.orange; bmiLight = C.orangeLight; }
+            else if (bmiNum < 25)   { bmiCategory = 'Normal weight'; bmiStatus = 'NORMAL';   bmiColor = C.green;  bmiLight = C.greenLight;  }
+            else if (bmiNum < 30)   { bmiCategory = 'Overweight';   bmiStatus = 'OVERWEIGHT'; bmiColor = C.orange; bmiLight = C.orangeLight; }
+            else                    { bmiCategory = 'Obese';        bmiStatus = 'OBESE';      bmiColor = C.red;    bmiLight = C.redLight;    }
+        }
+        const bmiDisplay = bmiNum > 0 ? bmiNum.toFixed(1) : '—';
+
+        // Health score
+        let hScore = 75, hStatus = 'Good', hColor = C.green, hLight = C.greenLight;
+        if (bmiNum > 0) {
+            if      (bmiNum < 18.5) { hScore = 65; hStatus = 'Needs Attention'; hColor = C.orange; hLight = C.orangeLight; }
+            else if (bmiNum < 25)   { hScore = 85; hStatus = 'Excellent';        hColor = C.green;  hLight = C.greenLight;  }
+            else if (bmiNum < 30)   { hScore = 65; hStatus = 'Needs Improvement'; hColor = C.orange; hLight = C.orangeLight; }
+            else                    { hScore = 45; hStatus = 'Attention Required'; hColor = C.red;    hLight = C.redLight;    }
+        }
+
+        // Allergies
         const allergiesList = document.getElementById('allergiesList');
-        const medicationsList = document.getElementById('medicationsList');
-        
-        let allergiesText = 'None';
+        let allergiesArr = [];
         if (allergiesList) {
-            const allergyTags = allergiesList.querySelectorAll('.allergy-tag');
-            if (allergyTags.length > 0) {
-                allergiesText = Array.from(allergyTags).map(tag => tag.textContent).join(', ');
-            }
+            allergiesList.querySelectorAll('.allergy-tag').forEach(t => allergiesArr.push(t.textContent.trim()));
         }
-        
-        let medicationsText = 'None';
+
+        // Medications
+        const medicationsList = document.getElementById('medicationsList');
+        let medRows = [];
         if (medicationsList) {
-            const medicationItems = medicationsList.querySelectorAll('.medication-item');
-            if (medicationItems.length > 0) {
-                medicationsText = Array.from(medicationItems).map(item => {
-                    const name = item.querySelector('.medication-name');
-                    const dose = item.querySelector('.medication-dose');
-                    return name ? `${name.textContent}${dose ? ` (${dose.textContent})` : ''}` : '';
-                }).filter(text => text).join(', ');
-            }
+            medicationsList.querySelectorAll('.medication-item').forEach(item => {
+                const name = item.querySelector('.medication-name')?.textContent?.trim() || '';
+                const dose = item.querySelector('.medication-dose')?.textContent?.trim() || '';
+                if (name) medRows.push([name, dose]);
+            });
+        }
+        if (medRows.length === 0) medRows.push(['No medications recorded', '']);
+
+        // Emergency contact
+        const emergencyName     = getEl('emergencyName')     || '—';
+        const emergencyRelation = getEl('emergencyRelation') || '—';
+        const emergencyPhone    = getEl('emergencyPhone')    || '—';
+
+        // Report meta
+        const reportId = `MPR-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
+        const generatedDate = new Date().toLocaleString('en-US', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+        const initials = fullName.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+
+        // ============================================
+        // PAGE 1 — COVER
+        // ============================================
+
+        // Top gradient-style bars
+        setFill(C.primary);
+        rect(0, 0, PAGE_W, 18, 'F');
+        setFill(C.accent);
+        rect(0, 18, PAGE_W, 3, 'F');
+
+        // Diagonal decorative stripe (bottom area)
+        setFill(C.bg);
+        rect(0, PAGE_H - 55, PAGE_W, 55, 'F');
+        setFill(C.primary);
+        rect(0, PAGE_H - 55, PAGE_W, 2, 'F');
+
+        watermark();
+
+        // App name in header bar
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.white);
+        doc.text('MEDITRACK+', MARGIN, 12);
+
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Personal Health Platform', PAGE_W - MARGIN, 12, { align: 'right' });
+
+        // Large cross / plus icon (drawn with rectangles — no Unicode needed)
+        const cx = PAGE_W / 2, cy = 85;
+        const cw = 8, ch = 28;
+        setFill(C.primary);
+        rect(cx - cw/2, cy - ch/2, cw, ch, 'F', 2);   // vertical bar
+        rect(cx - ch/2, cy - cw/2, ch, cw, 'F', 2);   // horizontal bar
+
+        // Title block
+        doc.setFontSize(30);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.primary);
+        doc.text('MEDITRACK+', PAGE_W / 2, 112, { align: 'center' });
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'normal');
+        setTxt(C.dark);
+        doc.text('PERSONAL HEALTH RECORD', PAGE_W / 2, 121, { align: 'center' });
+
+        doc.setFontSize(10);
+        setTxt(C.muted);
+        doc.text('Patient Summary Report', PAGE_W / 2, 129, { align: 'center' });
+
+        // Divider
+        setDraw(C.border);
+        doc.setLineWidth(0.5);
+        doc.line(45, 135, PAGE_W - 45, 135);
+
+        // Patient name card
+        setFill(C.bg);
+        rect(35, 142, PAGE_W - 70, 30, 'F', 5);
+        setDraw([200, 215, 235]);
+        doc.setLineWidth(0.5);
+        rect(35, 142, PAGE_W - 70, 30, 'S', 5);
+
+        // Avatar circle
+        setFill(C.primary);
+        doc.circle(55, 157, 10, 'F');
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.white);
+        doc.text(initials, 55, 160, { align: 'center' });
+
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.muted);
+        doc.text('PREPARED FOR', 70, 150);
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.primary);
+        doc.text(fullName, 70, 161);
+
+        // Report info
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        setTxt(C.muted);
+        doc.text(`Report ID: ${reportId}`, PAGE_W / 2, 185, { align: 'center' });
+        doc.text(`Generated: ${generatedDate}`, PAGE_W / 2, 192, { align: 'center' });
+
+        // Decorative dots row
+        for (let i = 0; i < 7; i++) {
+            const alpha = i === 3 ? 1 : 0.3;
+            doc.setGState(new doc.GState({ opacity: alpha }));
+            setFill(C.primary);
+            doc.circle(PAGE_W / 2 - 18 + i * 6, 200, 1.2, 'F');
+        }
+        doc.setGState(new doc.GState({ opacity: 1 }));
+
+        // Cover footer
+        setDraw(C.border);
+        doc.setLineWidth(0.3);
+        doc.line(MARGIN, PAGE_H - 35, PAGE_W - MARGIN, PAGE_H - 35);
+
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        setTxt(C.muted);
+        doc.text('This is an official MediTrack+ health document', PAGE_W / 2, PAGE_H - 29, { align: 'center' });
+        doc.text('www.meditrackplus.com  |  support@meditrackplus.com', PAGE_W / 2, PAGE_H - 23, { align: 'center' });
+
+        // ============================================
+        // PAGE 2 — HEALTH SUMMARY
+        // ============================================
+        doc.addPage();
+        watermark();
+        pageHeader('Health Summary', `Patient: ${fullName}`);
+        accentBar(14, PAGE_H - 14);
+
+        let y = 24;
+
+        // ---- Overall Health Score bar ----
+        setFill(hLight);
+        rect(MARGIN, y, CONTENT, 22, 'F', 3);
+        setDraw(hColor);
+        doc.setLineWidth(0.5);
+        rect(MARGIN, y, CONTENT, 22, 'S', 3);
+
+        // Score circle
+        setFill(hColor);
+        doc.circle(MARGIN + 16, y + 11, 9, 'F');
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.white);
+        doc.text(String(hScore), MARGIN + 16, y + 14.5, { align: 'center' });
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        setTxt(hColor);
+        doc.text('Overall Health Score', MARGIN + 30, y + 9);
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        doc.text(hStatus, MARGIN + 30, y + 16);
+
+        // Score bar visual (out of 100)
+        const barX = MARGIN + 30, barY = y + 18, barW = CONTENT - 50, barH = 3;
+        setFill(C.border);
+        rect(barX, barY, barW, barH, 'F', 1.5);
+        setFill(hColor);
+        rect(barX, barY, barW * (hScore / 100), barH, 'F', 1.5);
+
+        doc.setFontSize(7);
+        setTxt(C.muted);
+        doc.text('0', barX, barY + 7);
+        doc.text('100', barX + barW, barY + 7, { align: 'right' });
+
+        y += 30;
+
+        // ---- Patient Information ----
+        y = sectionTitle('Patient Information', y);
+
+        const piLW = 38; // label column width
+        const piTW = CONTENT; // total width
+
+        // Two-column layout for patient info
+        const col1x = MARGIN, col2x = MARGIN + CONTENT / 2 + 4;
+        const colW  = CONTENT / 2 - 4;
+
+        // Left column
+        let ly = y, ry = y;
+
+        function infoBox(label, value, x, curY, totalColW) {
+            setFill(C.bg);
+            rect(x, curY, totalColW, 10, 'F', 2);
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'bold');
+            setTxt(C.muted);
+            doc.text(label.toUpperCase(), x + 3, curY + 4.5);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            setTxt(C.dark);
+            const lines = doc.splitTextToSize(value || '—', totalColW - 6);
+            doc.text(lines[0], x + 3, curY + 8.5);
+            return curY + 13;
         }
 
-        drawBox('Medical Information', [
-            format('Allergies', allergiesText),
-            format('Medications', medicationsText)
-        ].join('\n'));
+        ly = infoBox('Full Name',       fullName,   col1x, ly, colW);
+        ly = infoBox('Date of Birth',   dob,        col1x, ly, colW);
+        ly = infoBox('Age',             age,        col1x, ly, colW);
+        ly = infoBox('Email',           emailRaw,   col1x, ly, colW);
 
-        // Get emergency contact
-        const emergencyName = document.getElementById('emergencyName');
-        const emergencyRelation = document.getElementById('emergencyRelation');
-        const emergencyPhone = document.getElementById('emergencyPhone');
+        ry = infoBox('Gender',          gender,     col2x, ry, colW);
+        ry = infoBox('Phone',           phone,      col2x, ry, colW);
+        ry = infoBox('Blood Type',      bloodType,  col2x, ry, colW);
+        ry = infoBox('Report ID',       reportId,   col2x, ry, colW);
 
-        drawBox('Emergency Contact', [
-            format('Name', emergencyName ? emergencyName.textContent : ''),
-            format('Relationship', emergencyRelation ? emergencyRelation.textContent : ''),
-            format('Phone', emergencyPhone ? emergencyPhone.textContent : '')
-        ].join('\n'));
+        y = Math.max(ly, ry) + 4;
 
-        doc.save('meditrack-health-report.pdf');
-        showNotification('PDF exported successfully!', 'success');
-    }, 1000);
+        // ---- Vital Statistics ----
+        y = sectionTitle('Vital Statistics', y);
+
+        // Three stat boxes
+        const sbW = (CONTENT - 8) / 3;
+        statBox(MARGIN,           y, sbW, 28, 'Height',      heightVal || '—', '', C.primary,  [235, 244, 255]);
+        statBox(MARGIN + sbW + 4, y, sbW, 28, 'Weight',      weightVal || '—', '', C.primary,  [235, 244, 255]);
+        statBox(MARGIN + sbW*2+8, y, sbW, 28, 'Blood Type',  bloodType || '—', '', C.primaryDark, [225, 240, 255]);
+        y += 34;
+
+        // ---- BMI Card ----
+        y = sectionTitle('Body Mass Index (BMI)', y);
+
+        setFill(bmiLight);
+        rect(MARGIN, y, CONTENT, 22, 'F', 3);
+        setDraw(bmiColor);
+        doc.setLineWidth(0.5);
+        rect(MARGIN, y, CONTENT, 22, 'S', 3);
+
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        setTxt(bmiColor);
+        doc.text(bmiDisplay, MARGIN + 8, y + 16);
+
+        const bmiNumW = doc.getTextWidth(bmiDisplay) + 12;
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        setTxt(C.muted);
+        doc.text('kg/m²', MARGIN + bmiNumW, y + 10);
+
+        // Status badge
+        badge(bmiStatus, MARGIN + bmiNumW, y + 17, bmiColor, C.white);
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        setTxt(C.mid);
+        doc.text(bmiCategory, MARGIN + bmiNumW + doc.getTextWidth(bmiStatus) + 10, y + 17);
+
+        // BMI scale bar
+        const scaleX = MARGIN, scaleY = y + 19, scaleW = CONTENT, scaleH = 2;
+        // segments: <18.5 underweight, 18.5-25 normal, 25-30 overweight, >30 obese
+        const segments = [
+            { pct: 18.5/40, color: C.orange },
+            { pct: 6.5/40,  color: C.green  },
+            { pct: 5/40,    color: C.orange  },
+            { pct: 10/40,   color: C.red     },
+        ];
+        let sx = scaleX;
+        for (const seg of segments) {
+            const sw = scaleW * seg.pct;
+            setFill(seg.color);
+            rect(sx, scaleY, sw, scaleH, 'F');
+            sx += sw;
+        }
+        // Needle marker
+        const needleX = scaleX + scaleW * Math.min(bmiNum / 40, 1);
+        setFill(C.dark);
+        doc.triangle(needleX - 1.5, scaleY, needleX + 1.5, scaleY, needleX, scaleY - 3, 'F');
+
+        y += 30;
+
+        pageFooter(2, 4);
+
+        // ============================================
+        // PAGE 3 — MEDICAL DETAILS
+        // ============================================
+        doc.addPage();
+        watermark();
+        pageHeader('Medical Details', `Patient: ${fullName}`);
+        accentBar(14, PAGE_H - 14);
+
+        y = 24;
+
+        // ---- Allergies ----
+        y = sectionTitle('Known Allergies', y);
+
+        if (allergiesArr.length === 0) {
+            setFill(C.bg);
+            rect(MARGIN, y, CONTENT, 10, 'F', 2);
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'normal');
+            setTxt(C.muted);
+            doc.text('No allergies recorded', MARGIN + 4, y + 7);
+            y += 15;
+        } else {
+            // Warning banner
+            setFill(C.redLight);
+            rect(MARGIN, y, CONTENT, 10, 'F', 2);
+            setDraw(C.red);
+            doc.setLineWidth(0.5);
+            rect(MARGIN, y, CONTENT, 10, 'S', 2);
+
+            // Warning icon: simple triangle (no Unicode)
+            setFill(C.red);
+            doc.triangle(MARGIN + 8, y + 8, MARGIN + 14, y + 8, MARGIN + 11, y + 2.5, 'F');
+            setFill(C.white);
+            rect(MARGIN + 10.2, y + 4.5, 1.6, 2.5, 'F');  // exclamation stem
+            doc.circle(MARGIN + 11, y + 7.5, 0.9, 'F');   // exclamation dot
+
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            setTxt(C.red);
+            doc.text(`ALLERGY ALERT  (${allergiesArr.length} recorded)`, MARGIN + 18, y + 7);
+            y += 14;
+
+            // Allergy tags
+            let tagX = MARGIN;
+            for (const allergy of allergiesArr) {
+                const tagW = doc.getTextWidth(allergy) + 10;
+                if (tagX + tagW > PAGE_W - MARGIN) { tagX = MARGIN; y += 10; }
+                setFill(C.redLight);
+                rect(tagX, y, tagW, 8, 'F', 4);
+                setDraw(C.red);
+                doc.setLineWidth(0.3);
+                rect(tagX, y, tagW, 8, 'S', 4);
+                doc.setFontSize(8.5);
+                doc.setFont('helvetica', 'bold');
+                setTxt(C.red);
+                doc.text(allergy, tagX + 5, y + 5.5);
+                tagX += tagW + 4;
+            }
+            y += 14;
+        }
+
+        // ---- Medications ----
+        y = sectionTitle('Current Medications', y);
+        y = table(['Medication', 'Dosage / Frequency'], medRows, MARGIN, y, [110, 72]);
+        y += 4;
+
+        // ---- Emergency Contact ----
+        if (y > 220) { doc.addPage(); watermark(); pageHeader('Medical Details (cont.)', `Patient: ${fullName}`); accentBar(14, PAGE_H-14); y = 24; }
+
+        y = sectionTitle('Emergency Contact', y);
+
+        setFill(C.redLight);
+        rect(MARGIN, y, CONTENT, 38, 'F', 3);
+        setDraw(C.red);
+        doc.setLineWidth(0.8);
+        rect(MARGIN, y, CONTENT, 38, 'S', 3);
+
+        // Red left accent on the card
+        setFill(C.red);
+        rect(MARGIN, y, 4, 38, 'F', 3);
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.red);
+        doc.text('EMERGENCY CONTACT', MARGIN + 10, y + 8);
+
+        rule(y + 11, C.red);
+
+        const ecLabelW = 30;
+        const ecX = MARGIN + 10;
+        let ey = y + 17;
+
+        function ecRow(label, val) {
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'bold');
+            setTxt(C.red);
+            doc.text(label, ecX, ey);
+            doc.setFont('helvetica', 'normal');
+            setTxt(C.dark);
+            doc.text(val, ecX + ecLabelW, ey);
+            ey += 7;
+        }
+
+        ecRow('Name:',          emergencyName);
+        ecRow('Relationship:',  emergencyRelation);
+        ecRow('Phone:',         emergencyPhone);
+
+        y += 44;
+
+        pageFooter(3, 4);
+
+        // ============================================
+        // PAGE 4 — DISCLAIMER
+        // ============================================
+        doc.addPage();
+        watermark();
+        pageHeader('Medical Disclaimer & Legal Notice', '');
+        accentBar(14, PAGE_H - 14);
+
+        y = 30;
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.primary);
+        doc.text('Medical Disclaimer', PAGE_W / 2, y, { align: 'center' });
+        y += 10;
+
+        const disclaimerBlocks = [
+            {
+                heading: 'For Informational Purposes Only',
+                body: 'This health report is generated by MediTrack+ based on the information provided by the patient or their authorized representative. It is intended solely as a personal health reference and does NOT constitute medical advice, diagnosis, or treatment recommendations.'
+            },
+            {
+                heading: 'Accuracy & Completeness',
+                body: 'While MediTrack+ strives for accuracy, we do not guarantee the completeness or correctness of the data presented. Always verify important medical information with your healthcare provider.'
+            },
+            {
+                heading: 'Consult a Healthcare Professional',
+                body: 'Always consult with a qualified healthcare provider before making any medical decisions based on this report. In case of a medical emergency, contact your local emergency services immediately.'
+            },
+            {
+                heading: 'BMI & Health Score Notes',
+                body: 'The BMI calculations and health scores provided are statistical estimates based on population averages and should be interpreted in the context of a full clinical assessment by a medical professional.'
+            },
+        ];
+
+        for (const block of disclaimerBlocks) {
+            if (y > 240) break;
+
+            setFill(C.bg);
+            rect(MARGIN, y, CONTENT, 28, 'F', 3);
+            setDraw(C.primary);
+            doc.setLineWidth(0.3);
+            rect(MARGIN, y, 3, 28, 'F', 0);   // left accent
+
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            setTxt(C.primary);
+            doc.text(block.heading, MARGIN + 8, y + 7);
+
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica', 'normal');
+            setTxt(C.mid);
+            const lines = doc.splitTextToSize(block.body, CONTENT - 12);
+            doc.text(lines, MARGIN + 8, y + 13);
+
+            y += 33;
+        }
+
+        y += 5;
+        rule(y);
+        y += 8;
+
+        // HIPAA / report meta footer on page 4
+        setFill(C.bg);
+        rect(MARGIN, y, CONTENT, 18, 'F', 3);
+
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
+        setTxt(C.primary);
+        doc.text('HIPAA Compliant  |  Secure Health Record', MARGIN + 4, y + 7);
+
+        doc.setFontSize(7.5);
+        doc.setFont('helvetica', 'normal');
+        setTxt(C.muted);
+        doc.text(`Report ID: ${reportId}`, MARGIN + 4, y + 13);
+        doc.text(`Generated: ${generatedDate}`, PAGE_W - MARGIN - 4, y + 13, { align: 'right' });
+
+        pageFooter(4, 4);
+
+        // ============================================
+        // SAVE
+        // ============================================
+        const fileName = `MediTrack_Medical_Report_${fullName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+        doc.save(fileName);
+        showNotification('Professional medical report generated successfully!', 'success');
+
+    }, 500);
 }
 
 // Generate share code (6 characters)

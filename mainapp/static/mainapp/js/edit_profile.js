@@ -1,4 +1,4 @@
-// edit_profile.js - Enhanced with working cancel button
+// edit_profile.js - Complete Fixed Version
 // DOM Elements
 const profileForm = document.getElementById('profileForm');
 const backButton = document.getElementById('backButton');
@@ -8,6 +8,9 @@ const saveBtn = document.getElementById('saveBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 const successModal = document.getElementById('successModal');
 const modalCloseBtn = document.getElementById('modalCloseBtn');
+const cancelModal = document.getElementById('cancelModal');
+const continueBtn = document.getElementById('continueBtn');
+const discardBtn = document.getElementById('discardBtn');
 
 // Form state management
 let originalFormData = {};
@@ -16,6 +19,7 @@ let formData = {};
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing...');
     initializeEventListeners();
     loadProfileData();
 });
@@ -24,8 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadProfileData() {
     try {
         // Show loading state
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        }
         
         // Try to load from API first
         const response = await fetch(GET_PROFILE_API_URL, {
@@ -70,28 +76,32 @@ async function loadProfileData() {
         formData = { ...INITIAL_PROFILE_DATA };
         populateForm(INITIAL_PROFILE_DATA);
         
-        if (PROFILE_PHOTO_URL) {
+        if (typeof PROFILE_PHOTO_URL !== 'undefined' && PROFILE_PHOTO_URL) {
             updateProfilePhoto(PROFILE_PHOTO_URL);
         }
         
         showNotification('Using local profile data', 'info');
     } finally {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <path d="M12 18v-6"></path>
-                <path d="M9 15l3 3 3-3"></path>
-            </svg>
-            Save Profile
-        `;
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <path d="M12 18v-6"></path>
+                    <path d="M9 15l3 3 3-3"></path>
+                </svg>
+                Save Profile
+            `;
+        }
         updateSaveButtonState();
     }
 }
 
 // Event Listeners
 function initializeEventListeners() {
+    console.log('Initializing event listeners...');
+    
     // Navigation
     if (backButton) {
         backButton.addEventListener('click', handleBackNavigation);
@@ -107,24 +117,43 @@ function initializeEventListeners() {
         profileForm.addEventListener('submit', handleFormSubmit);
         profileForm.addEventListener('input', handleFormInput);
         profileForm.addEventListener('change', handleFormChange);
+        
+        // Additional safety: listen on each form field directly
+        const allInputs = profileForm.querySelectorAll('input, select, textarea');
+        console.log(`Found ${allInputs.length} form fields to attach listeners to`);
+        allInputs.forEach(input => {
+            input.addEventListener('input', handleFormInput);
+            input.addEventListener('change', handleFormChange);
+        });
     }
     
-    // Buttons - FIXED: Add event listener for cancel button
+    // Cancel button - show modal
     if (cancelBtn) {
-        cancelBtn.addEventListener('click', handleCancelChanges);
-        
-        // Initially enable the cancel button
+        cancelBtn.addEventListener('click', showCancelModal);
         cancelBtn.disabled = false;
         cancelBtn.style.opacity = '1';
     }
     
+    // Modal buttons
     if (modalCloseBtn) {
         modalCloseBtn.addEventListener('click', closeSuccessModal);
     }
     
-    // Modal
+    if (continueBtn) {
+        continueBtn.addEventListener('click', closeCancelModal);
+    }
+    
+    if (discardBtn) {
+        discardBtn.addEventListener('click', handleDiscardChanges);
+    }
+    
+    // Modal overlays
     if (successModal) {
         successModal.addEventListener('click', handleModalOverlayClick);
+    }
+    
+    if (cancelModal) {
+        cancelModal.addEventListener('click', handleModalOverlayClick);
     }
     
     // Keyboard
@@ -132,6 +161,11 @@ function initializeEventListeners() {
     
     // Before unload
     window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // Force initial button state after a short delay
+    setTimeout(() => {
+        updateSaveButtonState();
+    }, 500);
 }
 
 // Populate form with data
@@ -155,22 +189,30 @@ function populateForm(data) {
     Object.keys(fieldMap).forEach(key => {
         const fieldId = fieldMap[key];
         const field = document.getElementById(fieldId);
-        
         if (field) {
             const value = data[key] || '';
-            
             if (field.tagName === 'SELECT') {
+                let optionFound = false;
                 for (let option of field.options) {
                     if (option.value === value) {
                         option.selected = true;
+                        optionFound = true;
                         break;
                     }
+                }
+                if (!optionFound && field.options.length > 0) {
+                    field.selectedIndex = 0;
                 }
             } else {
                 field.value = value;
             }
         }
     });
+
+    // Reset the unsaved changes flag after loading
+    hasUnsavedChanges = false;
+    formData = { ...data };
+    updateSaveButtonState();
 }
 
 // Navigation
@@ -254,6 +296,7 @@ function updateProfilePhoto(imageSrc) {
 }
 
 function showDefaultAvatar() {
+    if (!profileAvatarLarge) return;
     profileAvatarLarge.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -262,9 +305,20 @@ function showDefaultAvatar() {
     `;
 }
 
-// Form submission
+// Form submission - FIXED VERSION
 function handleFormSubmit(e) {
     e.preventDefault();
+    
+    console.log('=== FORM SUBMIT TRIGGERED ===');
+    console.log('hasUnsavedChanges:', hasUnsavedChanges);
+    console.log('saveBtn disabled?', saveBtn.disabled);
+    console.log('EDIT_PROFILE_URL:', typeof EDIT_PROFILE_URL !== 'undefined' ? EDIT_PROFILE_URL : 'NOT DEFINED');
+    
+    // Don't submit if no changes
+    if (!hasUnsavedChanges) {
+        showNotification('No changes to save', 'info');
+        return;
+    }
     
     // Show loading state
     saveBtn.disabled = true;
@@ -278,7 +332,7 @@ function handleFormSubmit(e) {
         data[key] = value;
     });
     
-    // Add avatar if exists
+    // Add avatar if exists (as base64 string)
     if (formData.avatar) {
         data.avatar = formData.avatar;
     }
@@ -296,10 +350,25 @@ function handleFormSubmit(e) {
     })
     .then(response => response.json())
     .then(result => {
+        console.log('Server response:', result);
+        
         if (result.success) {
-            originalFormData = { ...data };
+            // Update originalFormData with the fresh data from server
+            if (result.updated_profile) {
+                originalFormData = { ...result.updated_profile };
+                formData = { ...result.updated_profile };
+                // Repopulate form with the server data to ensure consistency
+                populateForm(result.updated_profile);
+            } else {
+                // Fallback: use the data we sent
+                originalFormData = { ...data };
+                formData = { ...data };
+            }
+            
             hasUnsavedChanges = false;
             updateSaveButtonState();
+            
+            // Show success modal (which will redirect after)
             showSuccessModal();
         } else {
             throw new Error(result.message || 'Failed to update profile');
@@ -308,8 +377,8 @@ function handleFormSubmit(e) {
     .catch(error => {
         console.error('Update error:', error);
         showNotification(error.message || 'Failed to update profile', 'error');
-    })
-    .finally(() => {
+        
+        // Re-enable save button
         saveBtn.disabled = false;
         saveBtn.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -324,22 +393,101 @@ function handleFormSubmit(e) {
 }
 
 function handleFormInput(e) {
-    hasUnsavedChanges = true;
-    formData[e.target.name] = e.target.value;
-    updateSaveButtonState();
+    if (!hasUnsavedChanges) {
+        hasUnsavedChanges = true;
+        updateSaveButtonState();
+    }
+    // Update global formData for potential avatar usage
+    if (e.target.name) {
+        formData[e.target.name] = e.target.value;
+    }
 }
 
 function handleFormChange(e) {
-    hasUnsavedChanges = true;
-    formData[e.target.name] = e.target.value;
-    updateSaveButtonState();
+    if (!hasUnsavedChanges) {
+        hasUnsavedChanges = true;
+        updateSaveButtonState();
+    }
+    if (e.target.name) {
+        formData[e.target.name] = e.target.value;
+    }
 }
 
-// FIXED: Cancel button handler
-function handleCancelChanges() {
-    // Always show confirmation dialog when canceling
-    const confirmCancel = confirm('Are you sure you want to discard all your changes?');
-    if (!confirmCancel) return;
+// CSRF token
+function getCSRFToken() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    return csrfToken ? csrfToken.value : '';
+}
+
+// UI state - Fixed version
+function updateSaveButtonState() {
+    if (!saveBtn) return;
+    
+    if (hasUnsavedChanges) {
+        saveBtn.disabled = false;
+        saveBtn.style.opacity = '1';
+        saveBtn.style.cursor = 'pointer';
+        saveBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <path d="M12 18v-6"></path>
+                <path d="M9 15l3 3 3-3"></path>
+            </svg>
+            Save Changes
+        `;
+        console.log('Save button enabled - changes present');
+    } else {
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = '0.7';
+        saveBtn.style.cursor = 'not-allowed';
+        saveBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <path d="M12 18v-6"></path>
+                <path d="M9 15l3 3 3-3"></path>
+            </svg>
+            No Changes to Save
+        `;
+        console.log('Save button disabled - no changes');
+    }
+    
+    // Cancel button should always be enabled
+    if (cancelBtn) {
+        cancelBtn.disabled = false;
+        cancelBtn.style.opacity = '1';
+        cancelBtn.style.cursor = 'pointer';
+    }
+}
+
+// Cancel Modal Functions
+function showCancelModal() {
+    console.log('Showing cancel modal');
+    if (cancelModal) {
+        cancelModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        setTimeout(() => {
+            if (continueBtn) continueBtn.focus();
+        }, 300);
+    }
+}
+
+function closeCancelModal() {
+    if (cancelModal) {
+        cancelModal.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        // Focus back on cancel button for accessibility
+        setTimeout(() => {
+            if (cancelBtn) cancelBtn.focus();
+        }, 100);
+    }
+}
+
+function handleDiscardChanges() {
+    console.log('Discarding changes...');
     
     // Reset form to original data
     populateForm(originalFormData);
@@ -347,7 +495,7 @@ function handleCancelChanges() {
     // Reset profile photo to original
     if (originalFormData.avatar) {
         updateProfilePhoto(originalFormData.avatar);
-    } else if (PROFILE_PHOTO_URL) {
+    } else if (typeof PROFILE_PHOTO_URL !== 'undefined' && PROFILE_PHOTO_URL) {
         updateProfilePhoto(PROFILE_PHOTO_URL);
     } else {
         showDefaultAvatar();
@@ -360,80 +508,49 @@ function handleCancelChanges() {
     
     showNotification('All changes discarded', 'info');
     
-    // Optionally redirect back to profile page
-    // setTimeout(() => {
-    //     window.location.href = PROFILE_URL || '/profile/';
-    // }, 1000);
-}
-
-// CSRF token
-function getCSRFToken() {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
-    return csrfToken ? csrfToken.value : '';
-}
-
-// UI state - FIXED: Enable cancel button always
-function updateSaveButtonState() {
-    if (hasUnsavedChanges) {
-        saveBtn.style.opacity = '1';
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <path d="M12 18v-6"></path>
-                <path d="M9 15l3 3 3-3"></path>
-            </svg>
-            Save Changes
-        `;
-    } else {
-        saveBtn.style.opacity = '0.7';
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <path d="M12 18v-6"></path>
-                <path d="M9 15l3 3 3-3"></path>
-            </svg>
-            No Changes to Save
-        `;
-    }
+    // Close the modal
+    closeCancelModal();
     
-    // Cancel button should always be enabled
-    if (cancelBtn) {
-        cancelBtn.disabled = false;
-        cancelBtn.style.opacity = '1';
-        cancelBtn.innerHTML = `<i class="fas fa-times"></i> Cancel`;
-    }
-}
-
-// Modal
-function showSuccessModal() {
-    successModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
+    // Redirect to dashboard after a short delay
     setTimeout(() => {
-        modalCloseBtn.focus();
-    }, 300);
+        window.location.href = DASHBOARD_URL || '/dashboard/';
+    }, 500);
+}
+
+// Success Modal Functions
+function showSuccessModal() {
+    if (successModal) {
+        successModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        setTimeout(() => {
+            if (modalCloseBtn) modalCloseBtn.focus();
+        }, 300);
+    }
 }
 
 function closeSuccessModal() {
-    successModal.classList.remove('active');
-    document.body.style.overflow = '';
-    
-    setTimeout(() => {
-        window.location.href = PROFILE_URL || '/profile/';
-    }, 1500);
+    if (successModal) {
+        successModal.classList.remove('active');
+        document.body.style.overflow = '';
+        
+        setTimeout(() => {
+            window.location.href = PROFILE_URL || '/profile/';
+        }, 500);
+    }
 }
 
+// Modal Overlay Click Handler
 function handleModalOverlayClick(e) {
     if (e.target === successModal) {
         closeSuccessModal();
     }
+    if (e.target === cancelModal) {
+        closeCancelModal();
+    }
 }
 
-// Notification
+// Notification System
 function showNotification(message, type = 'info') {
     // Remove existing notification
     const existingNotification = document.querySelector('.notification');
@@ -478,27 +595,39 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-// Keyboard
+// Keyboard Navigation
 function handleKeyboardNavigation(e) {
-    if (e.key === 'Escape' && successModal.classList.contains('active')) {
+    // Close success modal with Escape
+    if (e.key === 'Escape' && successModal && successModal.classList.contains('active')) {
         closeSuccessModal();
     }
     
-    // Escape key should trigger cancel when modal is not open
-    if (e.key === 'Escape' && !successModal.classList.contains('active')) {
+    // Show cancel modal with Escape when no modal is open
+    if (e.key === 'Escape' && 
+        successModal && !successModal.classList.contains('active') && 
+        cancelModal && !cancelModal.classList.contains('active')) {
         e.preventDefault();
-        handleCancelChanges();
+        if (hasUnsavedChanges) {
+            showCancelModal();
+        }
     }
     
+    // Close cancel modal with Escape when it's open
+    if (e.key === 'Escape' && cancelModal && cancelModal.classList.contains('active')) {
+        e.preventDefault();
+        closeCancelModal();
+    }
+    
+    // Ctrl/Cmd + S to save
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
-        if (!saveBtn.disabled) {
+        if (saveBtn && !saveBtn.disabled && hasUnsavedChanges) {
             handleFormSubmit(e);
         }
     }
 }
 
-// Add CSS animations
+// Add CSS animations dynamically
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInRight {
@@ -522,120 +651,17 @@ style.textContent = `
             transform: translateX(100px);
         }
     }
+    
+    .modal-overlay.active {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    button:disabled {
+        cursor: not-allowed !important;
+    }
 `;
 document.head.appendChild(style);
 
-// First, add these DOM elements at the top of edit_profile.js with other element declarations
-const cancelModal = document.getElementById('cancelModal');
-const continueBtn = document.getElementById('continueBtn');
-const discardBtn = document.getElementById('discardBtn');
-
-// Update the initializeEventListeners function
-function initializeEventListeners() {
-    // ... existing code ...
-    
-    // Cancel button - show modal instead of immediate action
-    if (cancelBtn) {
-        cancelBtn.addEventListener('click', showCancelModal);
-        
-        // Initially enable the cancel button
-        cancelBtn.disabled = false;
-        cancelBtn.style.opacity = '1';
-    }
-    
-    // New modal buttons
-    if (continueBtn) {
-        continueBtn.addEventListener('click', closeCancelModal);
-    }
-    
-    if (discardBtn) {
-        discardBtn.addEventListener('click', handleDiscardChanges);
-    }
-    
-    // ... rest of existing code ...
-}
-
-// Replace the handleCancelChanges function with these new functions:
-function showCancelModal() {
-    cancelModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-    
-    setTimeout(() => {
-        continueBtn.focus();
-    }, 300);
-}
-
-function closeCancelModal() {
-    cancelModal.classList.remove('active');
-    document.body.style.overflow = '';
-    
-    // Focus back on cancel button for accessibility
-    setTimeout(() => {
-        if (cancelBtn) cancelBtn.focus();
-    }, 100);
-}
-
-function handleDiscardChanges() {
-    // Reset form to original data
-    populateForm(originalFormData);
-    
-    // Reset profile photo to original
-    if (originalFormData.avatar) {
-        updateProfilePhoto(originalFormData.avatar);
-    } else if (PROFILE_PHOTO_URL) {
-        updateProfilePhoto(PROFILE_PHOTO_URL);
-    } else {
-        showDefaultAvatar();
-    }
-    
-    // Reset form state
-    hasUnsavedChanges = false;
-    formData = { ...originalFormData };
-    updateSaveButtonState();
-    
-    showNotification('All changes discarded', 'info');
-    
-    // Close the modal
-    closeCancelModal();
-    
-    // Redirect to dashboard after a short delay
-    setTimeout(() => {
-        window.location.href = DASHBOARD_URL || '/dashboard/';
-    }, 500);
-}
-
-// Update the keyboard navigation to use the modal instead of direct cancel
-function handleKeyboardNavigation(e) {
-    if (e.key === 'Escape' && successModal.classList.contains('active')) {
-        closeSuccessModal();
-    }
-    
-    // Escape key should show cancel modal when modal is not open
-    if (e.key === 'Escape' && !successModal.classList.contains('active') && !cancelModal.classList.contains('active')) {
-        e.preventDefault();
-        showCancelModal();
-    }
-    
-    // Close cancel modal with Escape when it's open
-    if (e.key === 'Escape' && cancelModal.classList.contains('active')) {
-        e.preventDefault();
-        closeCancelModal();
-    }
-    
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        if (!saveBtn.disabled) {
-            handleFormSubmit(e);
-        }
-    }
-}
-
-// Also update handleModalOverlayClick to handle cancel modal
-function handleModalOverlayClick(e) {
-    if (e.target === successModal) {
-        closeSuccessModal();
-    }
-    if (e.target === cancelModal) {
-        closeCancelModal();
-    }
-}
+console.log('edit_profile.js loaded successfully');
