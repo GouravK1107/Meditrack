@@ -1,110 +1,121 @@
-# 🩺 Meditrack — AI-Powered Patient Symptom Tracking System
+# Meditrack+
 
-A Django-based healthcare application that tracks patient symptoms and is being built toward AI-driven analysis. Meditrack maintains structured patient profiles and logs reported symptoms over time, laying the groundwork for early detection, progress tracking, and personalized health insights.
+> AI-powered patient symptom tracking and prescription management using **AI-driven analysis**, **prescription image reading**, and **n8n workflow automation** to support better health monitoring and medication adherence.
 
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
-![n8n](https://img.shields.io/badge/n8n-Workflow%20Automation-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)
-![AI](https://img.shields.io/badge/AI-Prescription%20OCR%20%2B%20Analysis-8E75B2?style=for-the-badge)
+---
+> 💼 **Project Type: Portfolio**
+>
+> This project is built to showcase my skills and real-world problem solving. It is well-structured, documented, and designed with best practices in mind. Feel free to explore the code and reach out for feedback or collaboration.
+>
+
+## 📖 About the Project
+
+**Meditrack** is a Django-based healthcare application that lets patients log their symptoms over time, upload a photo of their prescription, and receive automated medication reminders. Instead of manually tracking everything, it maintains structured patient profiles, analyzes reported symptoms for patterns and trends, and reads prescriptions automatically using AI.
+
+The goal is to bridge everyday health tracking with modern AI, offering early detection, progress tracking, and medication adherence support for both patients and healthcare professionals.
 
 ---
 
-## 📖 Description
-
-Meditrack provides structured user account management, secure authentication, symptom logging, AI-driven symptom analysis, and prescription image intelligence — all in one place. Patients can upload a photo of their prescription, have it read and interpreted automatically, and get automated medication reminders powered by n8n. It follows Django best practices with a modular, scalable architecture built for long-term maintainability.
-
----
-
-## ✨ Key Features
+## ✨ Features
 
 - 👤 Patient profile management
 - 📋 Symptom tracking and history
 - 🤖 AI-based symptom analysis — pattern and trend detection across reported symptoms
-- 📸 Prescription image upload + AI-powered reading — extracts medication details directly from a photographed prescription
+- 📸 Prescription image upload + AI-powered reading — extracts medication details (drug name, dosage, schedule) from a photographed prescription
 - ⏰ Automated medication reminders via **n8n** workflow automation
 - 🔐 Secure user authentication system
 - 🗂️ Scalable static and media file handling
-- 🧩 Modular Django application architecture
+- ⚡ Modular Django app structure for easy extension
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **Backend** | Django (Python) |
-| **Frontend** | HTML, CSS, JavaScript |
-| **Database** | SQLite (development), configurable for production |
-| **AI Integration** | Symptom analysis engine + prescription image reading (OCR/vision-based) |
-| **Automation** | n8n — automated medication reminder workflows |
+| Layer              | Technology                      |
+|---------------------|----------------------------------|
+| Backend             | Python, Django                  |
+| AI Integration      | Symptom analysis engine + prescription image reading (OCR / vision-based) |
+| Automation          | n8n (medication reminder workflows) |
+| Frontend            | HTML, CSS, JavaScript           |
+| Database            | SQLite (development), configurable for production |
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
 Meditrack/
-│
-├── mainapp/            # Core symptom tracking logic
-├── meditrack/           # Project settings & configuration
-├── useraccount/          # Authentication & patient profile management
-├── manage.py
+├── mainapp/          # Core symptom tracking logic
+├── meditrack/        # Project settings & configuration
+├── useraccount/      # Authentication & patient profile management
+├── manage.py         # Django management script
 └── README.md
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## 🚀 Getting Started
 
-**1️⃣ Clone the repository**
-```
-git clone https://github.com/GouravK1107/Meditrack.git
-cd Meditrack
-```
+### Prerequisites
 
-**2️⃣ Create a virtual environment**
-```
-python -m venv venv
-source venv/bin/activate      # Linux / macOS
-venv\Scripts\activate         # Windows
-```
+- Python 3.x installed
+- pip / virtualenv
+- An n8n instance *(if you want to use automated medication reminders)*
 
-**3️⃣ Install dependencies**
-```
-pip install django
-```
-*(A `requirements.txt` will be added as the dependency list grows — check the repo for the latest.)*
+### Installation
 
-**4️⃣ Run migrations**
-```
-python manage.py makemigrations
-python manage.py migrate
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/GouravK1107/Meditrack.git
+   cd Meditrack
+   ```
 
-**5️⃣ Create a superuser (optional, for Django admin)**
-```
-python manage.py createsuperuser
-```
+2. **Create and activate a virtual environment**
+   ```bash
+   python -m venv venv
+   # Windows
+   venv\Scripts\activate
+   # macOS/Linux
+   source venv/bin/activate
+   ```
 
-**6️⃣ Run the development server**
-```
-python manage.py runserver
-```
+3. **Install dependencies**
+   ```bash
+   pip install django
+   ```
+   *(A `requirements.txt` will be added as the dependency list grows — check the repo for the latest.)*
 
-Open
-```
-http://127.0.0.1:8000/
-```
+4. **Apply migrations**
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
+
+5. **Create a superuser (optional, for Django admin)**
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+6. **Run the development server**
+   ```bash
+   python manage.py runserver
+   ```
+
+7. Open your browser and go to:
+   ```
+   http://127.0.0.1:8000/
+   ```
 
 ---
 
-## 📸 How Prescription Reading Works
+## 💡 Usage
 
-1. Patient uploads a photo of their prescription through the app
-2. The image is processed and medication details (drug name, dosage, schedule) are extracted via AI
-3. Extracted data is stored against the patient's profile
-4. An **n8n** workflow picks up the schedule and triggers automated reminders at the right times
+1. Open the app in your browser and log in.
+2. Fill in your patient profile and log your symptoms.
+3. Upload a photo of your prescription.
+4. The AI extracts medication details (drug name, dosage, schedule) and stores them against your profile.
+5. An n8n workflow picks up the schedule and sends automated reminders at the right times.
+6. Review your symptom history and AI-based trend analysis.
 
 ---
 
@@ -114,43 +125,34 @@ http://127.0.0.1:8000/
 
 ---
 
-## 🎯 Objective
+## 🗺️ Roadmap
 
-To leverage AI for intelligent symptom tracking and prescription management — enabling better health monitoring, trend analysis, medication adherence, and decision support for both patients and healthcare professionals.
-
----
-
-## 🔥 Roadmap
-
-- 📊 Patient dashboard with symptom & medication history visualizations
-- 🔔 Smarter alerts for concerning symptom trends
-- 🐘 Production-ready PostgreSQL configuration
-- ☁️ Deployment guide
-- 📱 Mobile-friendly reminder notifications (SMS/push, alongside n8n)
+- [ ] Patient dashboard with symptom & medication history visualizations
+- [ ] Smarter alerts for concerning symptom trends
+- [ ] Production-ready PostgreSQL configuration
+- [ ] Deployment guide
+- [ ] Mobile-friendly reminder notifications (SMS/push, alongside n8n)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome.
-Fork → create a branch → commit → push → open a pull request.
+Contributions are welcome! If you'd like to improve this project:
+
+1. Fork the repository
+2. Create a new branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m "Add some feature"`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
 
 ---
 
-## ⭐ Support
+## 👤 Author
 
-If you found this project interesting, consider giving it a ⭐ on GitHub.
-
----
-
-## 👨‍💻 Author
-
-**Gourav R**
-Backend Developer | Applied AI Developer
-
-GitHub: https://github.com/GouravK1107
-Portfolio: https://gouravk1107.github.io/my-portfolio/
+**Gourav Kumar**
+GitHub: [@GouravK1107](https://github.com/GouravK1107)
+Portfolio: [gouravk1107.github.io/my-portfolio](https://gouravk1107.github.io/my-portfolio/)
 
 ---
 
-Made with ❤️ using Django, with AI on the way.
+⭐ If you find this project useful, consider giving it a star!
